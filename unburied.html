@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Which of the Unburied Are You? — The Destroyers, Book One</title>
+<meta name="description" content="Five ancient evils. One prison broken. Find out which of the Unburied you would have been — a companion quiz to The Unburied, Book One of The Destroyers by Jonathan Rabida.">
+<meta name="theme-color" content="#0a0a0c">
+<meta property="og:title" content="Which of the Unburied Are You?">
+<meta property="og:description" content="Five ancient evils. One prison broken. A companion quiz to The Unburied, Book One of The Destroyers.">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --obsidian: #0a0a0c;
+  --obsidian-2: #14141a;
+  --obsidian-3: #1d1d26;
+  --ash: #6f6a66;
+  --bone: #d7cfc1;
+  --parchment: #e9e1d0;
+  --gold: #c49a2a;
+  --gold-bright: #e7bf4a;
+  --crimson: #8b2232;
+  --crimson-bright: #b8303f;
+  --void: #050507;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Source Sans 3', Georgia, serif;
+  background: var(--obsidian);
+  color: var(--parchment);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.shell {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+}
+.shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 18% 22%, rgba(139,34,50,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 82% 78%, rgba(196,154,42,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, rgba(10,10,12,0) 0%, var(--void) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+.shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: overlay;
+}
+main {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 760px;
+}
+
+/* HEADER */
+.eyebrow {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.85rem;
+  font-weight: 600;
+}
+h1 {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(2.1rem, 5.2vw, 3.4rem);
+  line-height: 1.05;
+  color: var(--bone);
+  margin-bottom: 1.1rem;
+  letter-spacing: -0.01em;
+}
+h1 em {
+  font-style: italic;
+  color: var(--gold-bright);
+  font-weight: 600;
+}
+.lede {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: clamp(1.05rem, 2.1vw, 1.25rem);
+  color: var(--bone);
+  opacity: 0.85;
+  margin-bottom: 2rem;
+  max-width: 56ch;
+}
+
+/* INTRO PANEL */
+.panel {
+  background: linear-gradient(180deg, rgba(20,20,26,0.7) 0%, rgba(10,10,12,0.7) 100%);
+  border: 1px solid rgba(196,154,42,0.18);
+  border-radius: 4px;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+  position: relative;
+}
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(196,154,42,0.35), rgba(139,34,50,0.05), rgba(196,154,42,0.15));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.intro p + p { margin-top: 1rem; }
+.intro .warning {
+  margin-top: 1.4rem;
+  font-size: 0.92rem;
+  color: var(--ash);
+  font-style: italic;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+  padding: 0.85rem 1.6rem;
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--obsidian);
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: 0 8px 24px rgba(196,154,42,0.25);
+}
+.btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 12px 30px rgba(196,154,42,0.35); }
+.btn:active { transform: translateY(0); }
+.btn:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 4px; }
+.btn.ghost {
+  background: transparent;
+  color: var(--bone);
+  border: 1px solid rgba(215,207,193,0.25);
+  box-shadow: none;
+}
+.btn.ghost:hover { border-color: var(--gold); color: var(--gold-bright); filter: none; }
+
+/* PROGRESS */
+.progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1.6rem;
+}
+.dots { display: flex; gap: 0.55rem; }
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(215,207,193,0.12);
+  border: 1px solid rgba(215,207,193,0.18);
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+}
+.dot.done { background: rgba(196,154,42,0.5); border-color: var(--gold); }
+.dot.current { background: var(--gold-bright); border-color: var(--gold-bright); transform: scale(1.25); }
+.qcount {
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+/* QUESTION */
+.question h2 {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1.4rem, 3.2vw, 1.95rem);
+  line-height: 1.25;
+  color: var(--bone);
+  margin-bottom: 1.4rem;
+}
+.options { display: flex; flex-direction: column; gap: 0.7rem; }
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  width: 100%;
+  text-align: left;
+  background: rgba(20,20,26,0.5);
+  border: 1px solid rgba(215,207,193,0.12);
+  border-radius: 3px;
+  padding: 1rem 1.15rem;
+  color: var(--parchment);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 1.08rem;
+  line-height: 1.45;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.15s ease, color 0.18s ease;
+}
+.option:hover {
+  border-color: var(--gold);
+  background: rgba(29,29,38,0.7);
+  color: var(--gold-bright);
+  transform: translateX(3px);
+}
+.option:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
+}
+.option .mark {
+  flex-shrink: 0;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: var(--ash);
+  background: rgba(215,207,193,0.06);
+  border: 1px solid rgba(215,207,193,0.16);
+  padding: 0.2rem 0.45rem;
+  border-radius: 2px;
+  margin-top: 0.2rem;
+}
+.option:hover .mark {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.4rem;
+  gap: 1rem;
+}
+.back {
+  background: none;
+  border: none;
+  color: var(--ash);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0.4rem 0;
+}
+.back:hover { color: var(--bone); }
+.back:disabled { opacity: 0.3; cursor: default; }
+
+/* RESULT */
+.result-eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+.result-name {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 7vw, 4rem);
+  line-height: 1;
+  color: var(--bone);
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.015em;
+}
+.result-epithet {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  color: var(--gold-bright);
+  margin-bottom: 1.5rem;
+}
+.result-glyph {
+  margin: 0 0 1.4rem;
+  height: 80px;
+  display: flex;
+  align-items: center;
+}
+.result-glyph svg { height: 100%; width: auto; }
+.result-glyph svg path,
+.result-glyph svg circle,
+.result-glyph svg line,
+.result-glyph svg polyline,
+.result-glyph svg polygon { stroke: var(--gold); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.result-glyph svg .fill { fill: var(--gold); stroke: none; }
+
+.result-quote {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.4vw, 1.3rem);
+  color: var(--bone);
+  border-left: 2px solid var(--crimson);
+  padding-left: 1rem;
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+}
+.result-body p { margin-bottom: 1rem; color: var(--parchment); }
+.result-body p:last-child { margin-bottom: 0; }
+.stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem 1.4rem;
+  margin: 1.4rem 0 0.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(215,207,193,0.12);
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+.stat-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ash);
+  margin-bottom: 0.15rem;
+}
+.stat-value {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--bone);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.8rem;
+}
+.share-feedback {
+  margin-top: 0.8rem;
+  font-size: 0.85rem;
+  color: var(--gold);
+  min-height: 1.2em;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.share-feedback.visible { opacity: 1; }
+
+/* SPREAD: optional secondary characters */
+.spread {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+.spread-card {
+  background: rgba(20,20,26,0.45);
+  border: 1px solid rgba(215,207,193,0.08);
+  padding: 0.8rem 0.9rem;
+  border-radius: 2px;
+}
+.spread-card .pct {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.3rem;
+  color: var(--gold-bright);
+  line-height: 1;
+}
+.spread-card .nm {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ash);
+  margin-top: 0.25rem;
+}
+
+/* FOOTER */
+footer {
+  position: relative;
+  z-index: 1;
+  margin-top: 3rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--ash);
+  letter-spacing: 0.04em;
+}
+footer a { color: var(--gold); text-decoration: none; }
+footer a:hover { color: var(--gold-bright); text-decoration: underline; }
+
+/* SCREEN TRANSITIONS */
+.screen {
+  animation: fadeUp 0.45s ease-out;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* HIDDEN CANVAS for share card */
+#shareCanvas {
+  position: absolute;
+  left: -10000px;
+  top: -10000px;
+}
+
+@media (max-width: 540px) {
+  .stat-row { grid-template-columns: 1fr; }
+  .actions .btn { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <main>
+    <!-- INTRO SCREEN -->
+    <section class="screen" id="intro">
+      <div class="eyebrow">The Destroyers · Book One Companion</div>
+      <h1>Which of the <em>Unburied</em> are you?</h1>
+      <p class="lede">Five ancient evils. Five prisons. One cauldron that frees them. Answer eight questions about hunger, control, and the long quiet of a cell that does not end. Find out which of the five you would have been.</p>
+
+      <div class="panel intro">
+        <p>Morenth pulled them from the wound he had been widening in reality for centuries. A Qeth who outgrew its kin. A half-dragon, half-minotaur in stone-frozen rage. The First Orc, mid-charge, one eye blazing. A cat who outlived every bridle. A void that wears your face.</p>
+        <p>They drank from the cauldron. They were given knowledge of every age that had passed without them. Then they were sent into the world.</p>
+        <p class="warning">— Eight questions. Spoiler-free for the rest of <em>The Destroyers</em>. Your answer is between you and the dark.</p>
+        <button class="btn" id="startBtn">Step to the cauldron →</button>
+      </div>
+    </section>
+
+    <!-- QUIZ SCREEN -->
+    <section class="screen" id="quiz" hidden>
+      <div class="progress">
+        <div class="dots" id="dots"></div>
+        <div class="qcount" id="qcount"></div>
+      </div>
+      <div class="panel question" id="questionPanel">
+        <h2 id="qtext"></h2>
+        <div class="options" id="options"></div>
+        <div class="nav">
+          <button class="back" id="backBtn" type="button">← Back</button>
+          <span class="qcount" id="qsubtle"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULT SCREEN -->
+    <section class="screen" id="result" hidden>
+      <div class="panel">
+        <div class="result-eyebrow">You are one of the Unburied</div>
+        <h2 class="result-name" id="rName"></h2>
+        <div class="result-epithet" id="rEpithet"></div>
+        <div class="result-glyph" id="rGlyph"></div>
+        <blockquote class="result-quote" id="rQuote"></blockquote>
+        <div class="result-body" id="rBody"></div>
+        <div class="stat-row" id="rStats"></div>
+        <div class="spread" id="rSpread"></div>
+        <div class="actions">
+          <button class="btn" id="downloadBtn">Download your card</button>
+          <button class="btn ghost" id="copyBtn">Copy share text</button>
+          <button class="btn ghost" id="restartBtn">Take it again</button>
+        </div>
+        <div class="share-feedback" id="shareFeedback" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p><em>The Unburied</em> · The Destroyers, Book One · by Jonathan Rabida</p>
+    <p style="margin-top:0.3rem;"><a href="/">← agencydignityanddice.com</a></p>
+  </footer>
+</div>
+
+<canvas id="shareCanvas" width="1200" height="630"></canvas>
+
+<script>
+// ----- DATA --------------------------------------------------------------
+const CHARS = {
+  thulu: {
+    key: 'thulu',
+    name: 'Thulu',
+    epithet: 'The Qeth Who Outgrew His Kind',
+    quote: '“All things are weapons. The question is who wields them.”',
+    body: [
+      'Four eyes in a horizontal row. A mouth that unseals only when there is a thing worth tasting. You were a Qeth who walked away from the discipline of your people because their mastery had a ceiling and you had hands.',
+      'You spent your imprisonment cataloguing the silence. Variation by variation. You named every shape it took. When the cauldron broke the wards, you stepped out already knowing what the new world had spent centuries forgetting.',
+      'Your weapon is patience sharpened to a needle. Your danger is that you have already noticed the thing the people around you have not yet realized they will need to hide.'
+    ],
+    hunger: 'Mastery, complete and unwitnessed',
+    weapon: 'Patience, and the unsaid thing',
+    glyph: `<svg viewBox="0 0 200 120" aria-hidden="true">
+      <circle class="fill" cx="40" cy="60" r="6"/>
+      <circle class="fill" cx="80" cy="60" r="6"/>
+      <circle class="fill" cx="120" cy="60" r="6"/>
+      <circle class="fill" cx="160" cy="60" r="6"/>
+      <path d="M20 60 Q100 20 180 60" />
+      <path d="M20 60 Q100 100 180 60" />
+    </svg>`
+  },
+  beast: {
+    key: 'beast',
+    name: 'BEAST',
+    epithet: 'Rage Given Form, Frost Across the Scales',
+    quote: '“Drannik thurkan — hungry kin. I will eat beside you.”',
+    body: [
+      'Half-dragon, half-minotaur. Scales the color of winter frost over a frame built to break the things that built the cage. You were locked away because rage was the only thing the gods of an older age could not name and therefore could not bind.',
+      'Imprisonment did not soften you. It refined you. The fury is no quieter now — it is simply yours, where once it owned you. The control is new in your posture. The hunger is not.',
+      'You speak Draconic to those who deserve it. To everyone else, you speak in motion. Your danger is that the people who think they can use you are still working from the assumption that anger is a leash.'
+    ],
+    hunger: 'A meal taken beside kin',
+    weapon: 'Your body — chosen, not given',
+    glyph: `<svg viewBox="0 0 200 120" aria-hidden="true">
+      <path d="M40 100 Q40 30 70 30" />
+      <path d="M160 100 Q160 30 130 30" />
+      <path d="M70 30 L70 10 L90 25" />
+      <path d="M130 30 L130 10 L110 25" />
+      <path d="M55 70 Q100 90 145 70" />
+      <path d="M65 95 L80 110" />
+      <path d="M135 95 L120 110" />
+    </svg>`
+  },
+  krod: {
+    key: 'krod',
+    name: 'Krod',
+    epithet: 'The First Orc, Verb Mistaken for Noun',
+    quote: '“Verbs cannot be filed.”',
+    body: [
+      'Mid-charge. Tusks like curved blades. One socket dark where the eye was traded for whatever you decided to win that day. The other blazing forward — fixed, never scanning. You were the verb the pantheon long ago decided was a noun, and they catalogued you wrong.',
+      'You charge the strongest. You do not look behind you because what is behind you is settled. The destiny rhetoric in your mouth is real, not performance — you have heard the word so many times across so many ages that you have become it.',
+      'Your danger is the same as your gift: you do not see the cut that comes from the side, because you have stopped looking for cuts entirely. Whether that ends you or ends the world depends on who is standing in front of you when the moment lands.'
+    ],
+    hunger: 'A field worthy of the charge',
+    weapon: 'Whatever you are holding',
+    glyph: `<svg viewBox="0 0 200 120" aria-hidden="true">
+      <circle cx="100" cy="60" r="38" />
+      <circle class="fill" cx="100" cy="60" r="6"/>
+      <line x1="60" y1="40" x2="40" y2="20" />
+      <line x1="140" y1="40" x2="160" y2="20" />
+      <path d="M72 95 L82 110 M128 95 L118 110" />
+    </svg>`
+  },
+  cat: {
+    key: 'cat',
+    name: 'The Cat',
+    epithet: 'Chaos in Fur, Bridled by No One Living',
+    quote: '“Cats take what they want.”',
+    body: [
+      'You curled inside a temporal bubble with an expression of vague amusement, as if imprisonment were a joke whose punchline had not yet arrived. Every god in the pantheon has been visited by you at least once. Most of them laughed. The laughter was a fingerprint.',
+      'When the cauldron opened you did not reach. You jumped onto the rim and drank directly, because cats do not take what is offered. You decided in the same motion that Morenth was a tool, not a master. You have worn bridles before. You have outlived every hand that ever held one.',
+      'Your danger is that the people around you have decided you are playing. You are playing. The two facts do not contradict.'
+    ],
+    hunger: 'A better view, and the option to leave',
+    weapon: 'Their assumption that you are joking',
+    glyph: `<svg viewBox="0 0 200 120" aria-hidden="true">
+      <path d="M50 90 Q40 50 70 35 L80 55 L100 35 L120 55 L130 35 Q160 50 150 90 Z" />
+      <circle class="fill" cx="85" cy="65" r="3"/>
+      <circle class="fill" cx="115" cy="65" r="3"/>
+      <path d="M95 78 Q100 82 105 78" />
+      <path d="M150 85 Q180 70 175 40" />
+    </svg>`
+  },
+  nobody: {
+    key: 'nobody',
+    name: 'Nobody',
+    epithet: 'The Faceless, the Walled One, the Void That Waits',
+    quote: '“A void is a kind of patience.”',
+    body: [
+      'They called you the faceless one. You hung in your prison fully conscious for eons, screaming without sound into a darkness that neither killed you nor released you. Somewhere across the centuries you stopped being anyone. There was no one left to suffer. The pain went on without you.',
+      'You wear identities the way other people wear clothing. Beneath them all: nothing. A void where selfhood should be. Jenryk the God of Murder visited your prison once and pressed his presence to your walls and whispered promises he had no intention of keeping. Hunger recognized hunger across the barrier.',
+      'Your danger is that the people around you trust the face you are currently wearing. They are not wrong to. They are only wrong about how many there are.'
+    ],
+    hunger: 'To stop being hungry. Just once.',
+    weapon: 'The face the room trusts',
+    glyph: `<svg viewBox="0 0 200 120" aria-hidden="true">
+      <ellipse cx="100" cy="60" rx="42" ry="52" />
+      <path d="M100 8 Q60 8 60 60 Q60 112 100 112 Q140 112 140 60 Q140 8 100 8" stroke-dasharray="3 5"/>
+    </svg>`
+  }
+};
+
+// ----- QUESTIONS ---------------------------------------------------------
+// Each option maps to one character key.
+const QUESTIONS = [
+  {
+    q: 'You spent eons in a cell that would neither kill you nor release you. What kept you intact?',
+    opts: [
+      { t: 'Cataloguing every variation the silence could take. I named all of them.', k: 'thulu' },
+      { t: 'The rage. I refused to let it dim. It became the only clock that worked.', k: 'beast' },
+      { t: 'The certainty that I had not finished. Something was still owed.', k: 'krod' },
+      { t: 'Boredom is a problem for prisons. It was not, as it turned out, a problem for me.', k: 'cat' },
+      { t: 'I stopped being anyone. There was no one left inside to suffer.', k: 'nobody' }
+    ]
+  },
+  {
+    q: 'A god you do not trust offers you freedom and a binding in the same breath. Your first move?',
+    opts: [
+      { t: 'Map the offer. Find what he is not saying. The lie is in the silence around the deal.', k: 'thulu' },
+      { t: 'Accept. Eat the chain first, the keeper second.', k: 'beast' },
+      { t: 'Accept loudly. Renegotiate later — at the cauldron’s edge, where the room can hear me.', k: 'krod' },
+      { t: 'Drink before he finishes the sentence. He was going to let me anyway.', k: 'cat' },
+      { t: 'Ask him why me. Specifically. Not the flattery. Listen for the lie.', k: 'nobody' }
+    ]
+  },
+  {
+    q: 'Your true name is…',
+    opts: [
+      { t: 'A discipline I outgrew. The kin who taught it to me are still using it.', k: 'thulu' },
+      { t: 'Earned. Not given. The thing the cage failed to name.', k: 'beast' },
+      { t: 'A war cry the world learned to fear before it learned to spell.', k: 'krod' },
+      { t: 'Whatever amuses me today. I have had others. I will have others.', k: 'cat' },
+      { t: 'I do not have one. I wear yours.', k: 'nobody' }
+    ]
+  },
+  {
+    q: 'What do you actually want from power?',
+    opts: [
+      { t: 'Mastery. Total. To know the thing so completely that nothing about it can surprise me again.', k: 'thulu' },
+      { t: 'To never be caged again. By anyone. Ever. Including kin.', k: 'beast' },
+      { t: 'A field worthy of the charge. An opponent whose name will be heavier after.', k: 'krod' },
+      { t: 'A better view. And the option, always, to leave when it gets dull.', k: 'cat' },
+      { t: 'To stop being hungry. Just once. Long enough to know what stopping feels like.', k: 'nobody' }
+    ]
+  },
+  {
+    q: 'In a room of dangerous people, your weapon is…',
+    opts: [
+      { t: 'The needle of patience. I am still moving three minutes after you stopped watching.', k: 'thulu' },
+      { t: 'My own body. There is nothing I am carrying that the room will notice before it matters.', k: 'beast' },
+      { t: 'Whatever I am holding. And what I am holding will be enough, because I am holding it.', k: 'krod' },
+      { t: 'Their assumption that I am playing. I am. It does not save them.', k: 'cat' },
+      { t: 'The face the room already trusts. I borrowed it on the way in.', k: 'nobody' }
+    ]
+  },
+  {
+    q: 'The alliance breaks. It always does. You…',
+    opts: [
+      { t: 'Have already left, three steps ago. The break is something they are noticing about a room I am no longer in.', k: 'thulu' },
+      { t: 'Am the one who breaks it. Out loud. The cracking sound is the announcement.', k: 'beast' },
+      { t: 'Charge the strongest. The break is the reason. The strongest is the answer.', k: 'krod' },
+      { t: 'Watch from somewhere warm. I am keeping notes.', k: 'cat' },
+      { t: 'Become whoever survives the next room. I am already wearing their face.', k: 'nobody' }
+    ]
+  },
+  {
+    q: 'The thing you actually fear.',
+    opts: [
+      { t: 'Being predicted. Being read before I finish reading the room.', k: 'thulu' },
+      { t: 'Being broken again. Not the cage — the version of me that fit inside it.', k: 'beast' },
+      { t: 'An enemy who never comes. A field that never opens. The charge with nowhere to land.', k: 'krod' },
+      { t: 'Boredom. Only boredom. And only because boredom is louder than anyone admits.', k: 'cat' },
+      { t: 'Being seen. Truly. Through the face I am currently wearing, to the void underneath.', k: 'nobody' }
+    ]
+  },
+  {
+    q: 'Pick a sentence to live by.',
+    opts: [
+      { t: '“All things are weapons. The question is who wields them.”', k: 'thulu' },
+      { t: '“Hungry kin eat beside me.”', k: 'beast' },
+      { t: '“Verbs cannot be filed.”', k: 'krod' },
+      { t: '“Cats take what they want.”', k: 'cat' },
+      { t: '“A void is a kind of patience.”', k: 'nobody' }
+    ]
+  }
+];
+
+// ----- STATE -------------------------------------------------------------
+let qIndex = 0;
+const answers = []; // array of selected character keys per question
+
+// ----- DOM ---------------------------------------------------------------
+const introEl = document.getElementById('intro');
+const quizEl = document.getElementById('quiz');
+const resultEl = document.getElementById('result');
+const startBtn = document.getElementById('startBtn');
+const dotsEl = document.getElementById('dots');
+const qcountEl = document.getElementById('qcount');
+const qsubtleEl = document.getElementById('qsubtle');
+const qtextEl = document.getElementById('qtext');
+const optionsEl = document.getElementById('options');
+const backBtn = document.getElementById('backBtn');
+const questionPanel = document.getElementById('questionPanel');
+const rName = document.getElementById('rName');
+const rEpithet = document.getElementById('rEpithet');
+const rGlyph = document.getElementById('rGlyph');
+const rQuote = document.getElementById('rQuote');
+const rBody = document.getElementById('rBody');
+const rStats = document.getElementById('rStats');
+const rSpread = document.getElementById('rSpread');
+const downloadBtn = document.getElementById('downloadBtn');
+const copyBtn = document.getElementById('copyBtn');
+const restartBtn = document.getElementById('restartBtn');
+const shareFeedback = document.getElementById('shareFeedback');
+
+// ----- FLOW --------------------------------------------------------------
+function showScreen(el) {
+  for (const s of [introEl, quizEl, resultEl]) s.hidden = true;
+  el.hidden = false;
+  el.classList.remove('screen');
+  void el.offsetWidth;
+  el.classList.add('screen');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function start() {
+  qIndex = 0;
+  answers.length = 0;
+  showScreen(quizEl);
+  renderQuestion();
+}
+
+function renderDots() {
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < QUESTIONS.length; i++) {
+    const d = document.createElement('span');
+    d.className = 'dot' + (i < qIndex ? ' done' : '') + (i === qIndex ? ' current' : '');
+    dotsEl.appendChild(d);
+  }
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[qIndex];
+  qcountEl.textContent = `Question ${qIndex + 1} of ${QUESTIONS.length}`;
+  qsubtleEl.textContent = `${qIndex + 1} / ${QUESTIONS.length}`;
+  qtextEl.textContent = q.q;
+  renderDots();
+
+  optionsEl.innerHTML = '';
+  const shuffled = shuffle(q.opts);
+  shuffled.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'option';
+    btn.innerHTML = `<span class="mark">${String.fromCharCode(65 + i)}</span><span class="text"></span>`;
+    btn.querySelector('.text').textContent = opt.t;
+    btn.addEventListener('click', () => choose(opt.k));
+    optionsEl.appendChild(btn);
+  });
+
+  backBtn.disabled = qIndex === 0;
+
+  questionPanel.classList.remove('screen');
+  void questionPanel.offsetWidth;
+  questionPanel.classList.add('screen');
+}
+
+function choose(key) {
+  answers[qIndex] = key;
+  if (qIndex < QUESTIONS.length - 1) {
+    qIndex++;
+    renderQuestion();
+  } else {
+    finish();
+  }
+}
+
+backBtn.addEventListener('click', () => {
+  if (qIndex > 0) {
+    qIndex--;
+    renderQuestion();
+  }
+});
+
+startBtn.addEventListener('click', start);
+restartBtn.addEventListener('click', () => { showScreen(introEl); });
+
+// ----- RESULT ------------------------------------------------------------
+function tally() {
+  const counts = { thulu: 0, beast: 0, krod: 0, cat: 0, nobody: 0 };
+  for (const a of answers) counts[a]++;
+  return counts;
+}
+
+function pickWinner(counts) {
+  let best = null;
+  let bestCount = -1;
+  // tie-breaker: prefer the last-answered key among tied highest, so the final question
+  // (the "live by" line) carries weight — feels narratively right.
+  const lastKey = answers[answers.length - 1];
+  for (const [k, v] of Object.entries(counts)) {
+    if (v > bestCount) { best = k; bestCount = v; }
+  }
+  // gather ties
+  const tied = Object.keys(counts).filter(k => counts[k] === bestCount);
+  if (tied.length > 1 && tied.includes(lastKey)) return lastKey;
+  return best;
+}
+
+function finish() {
+  const counts = tally();
+  const winner = pickWinner(counts);
+  const c = CHARS[winner];
+
+  rName.textContent = c.name;
+  rEpithet.textContent = c.epithet;
+  rGlyph.innerHTML = c.glyph;
+  rQuote.textContent = c.quote;
+  rBody.innerHTML = c.body.map(p => `<p>${p}</p>`).join('');
+
+  rStats.innerHTML = `
+    <div class="stat"><span class="stat-label">Your Hunger</span><span class="stat-value">${c.hunger}</span></div>
+    <div class="stat"><span class="stat-label">Your Weapon</span><span class="stat-value">${c.weapon}</span></div>
+  `;
+
+  // Spread of resonances
+  const total = answers.length;
+  const entries = Object.entries(counts)
+    .map(([k, v]) => ({ k, v, pct: Math.round((v / total) * 100) }))
+    .sort((a, b) => b.v - a.v);
+  rSpread.innerHTML = entries.map(e =>
+    `<div class="spread-card"><div class="pct">${e.pct}%</div><div class="nm">${CHARS[e.k].name}</div></div>`
+  ).join('');
+
+  // Stash winner for share/download
+  window._winner = winner;
+
+  showScreen(resultEl);
+}
+
+// ----- SHARE -------------------------------------------------------------
+function showFeedback(msg) {
+  shareFeedback.textContent = msg;
+  shareFeedback.classList.add('visible');
+  setTimeout(() => shareFeedback.classList.remove('visible'), 2400);
+}
+
+copyBtn.addEventListener('click', async () => {
+  const c = CHARS[window._winner];
+  const text = `I am ${c.name} — ${c.epithet}.\n${c.quote}\n\nWhich of the Unburied are you? ${location.href}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    showFeedback('Copied. Send it where the dark can read it.');
+  } catch {
+    showFeedback('Copy failed — select and copy manually.');
+  }
+});
+
+downloadBtn.addEventListener('click', async () => {
+  const c = CHARS[window._winner];
+  await document.fonts.ready;
+  const canvas = document.getElementById('shareCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Background
+  const g = ctx.createRadialGradient(W * 0.2, H * 0.3, 50, W * 0.5, H * 0.5, W);
+  g.addColorStop(0, '#1d1d26');
+  g.addColorStop(0.5, '#0a0a0c');
+  g.addColorStop(1, '#050507');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  // Crimson wash
+  const cg = ctx.createRadialGradient(W * 0.18, H * 0.22, 40, W * 0.18, H * 0.22, W * 0.55);
+  cg.addColorStop(0, 'rgba(139,34,50,0.35)');
+  cg.addColorStop(1, 'rgba(139,34,50,0)');
+  ctx.fillStyle = cg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Gold border
+  ctx.strokeStyle = 'rgba(196,154,42,0.55)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(30, 30, W - 60, H - 60);
+  ctx.strokeStyle = 'rgba(196,154,42,0.18)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(40, 40, W - 80, H - 80);
+
+  // Eyebrow
+  ctx.fillStyle = '#c49a2a';
+  ctx.font = '600 22px "Source Sans 3", Georgia, serif';
+  ctx.textBaseline = 'top';
+  ctx.fillText('THE  DESTROYERS  ·  BOOK  ONE  ·  THE  UNBURIED', 80, 80);
+
+  // Label "I AM"
+  ctx.fillStyle = '#6f6a66';
+  ctx.font = '500 28px "Source Sans 3", Georgia, serif';
+  ctx.fillText('I AM —', 80, 150);
+
+  // Character name (huge)
+  ctx.fillStyle = '#d7cfc1';
+  ctx.font = '800 132px "Crimson Pro", Georgia, serif';
+  ctx.fillText(c.name, 78, 190);
+
+  // Epithet
+  ctx.fillStyle = '#e7bf4a';
+  ctx.font = 'italic 600 34px "Crimson Pro", Georgia, serif';
+  const epi = c.epithet;
+  wrapText(ctx, epi, 80, 350, W - 160, 42);
+
+  // Quote
+  ctx.fillStyle = '#e9e1d0';
+  ctx.font = 'italic 400 30px "Crimson Pro", Georgia, serif';
+  wrapText(ctx, c.quote, 80, 450, W - 160, 38);
+
+  // Footer
+  ctx.fillStyle = '#6f6a66';
+  ctx.font = '500 20px "Source Sans 3", Georgia, serif';
+  ctx.fillText('Which of the Unburied are you?  ·  agencydignityanddice.com', 80, H - 70);
+
+  // Trigger download
+  canvas.toBlob((blob) => {
+    if (!blob) { showFeedback('Could not generate image.'); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `unburied-${c.key}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showFeedback('Card downloaded.');
+  }, 'image/png');
+});
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  let cy = y;
+  for (let n = 0; n < words.length; n++) {
+    const test = line + words[n] + ' ';
+    const w = ctx.measureText(test).width;
+    if (w > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, cy);
+      line = words[n] + ' ';
+      cy += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line.trim(), x, cy);
+}
+
+// Initial render
+renderDots();
+</script>
+</body>
+</html>
