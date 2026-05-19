@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vending Venture</title>
+<style>
+/* ============================================================
+   VENDING VENTURE — calm vending palette, large touch targets.
+   Soft blues/greens/white background, gold for coins.
+   ============================================================ */
+:root{
+  --blue:#5b9bb0; --blue-dark:#3f7e92; --green:#6aab7e; --green-dark:#4f8c63;
+  --bg:#eef5f8; --panel:#ffffff; --ink:#22343b; --gold:#e8b923; --gold-dark:#b88c0e;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI",Verdana,Arial,sans-serif;
+  font-size:24px; line-height:1.4;
+}
+/* ---- layout ---- */
+#app{max-width:900px;margin:0 auto;padding:20px;}
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--blue);color:#fff;border-radius:16px;
+  padding:16px 22px;margin-bottom:18px;
+}
+.header h1{font-size:30px;margin:0;}
+.panel{
+  background:var(--panel);border-radius:16px;padding:28px;
+  box-shadow:0 4px 14px rgba(0,0,0,.10);
+}
+.screen-text{font-size:32px;margin:18px 0;}
+.small-note{font-size:22px;color:var(--blue-dark);}
+/* ---- buttons: minimum 80px tall, 250px wide ---- */
+button{
+  font-family:inherit;font-size:24px;cursor:pointer;
+  min-height:80px;min-width:250px;
+  border:none;border-radius:14px;padding:14px 22px;margin:10px;
+  background:var(--blue);color:#fff;font-weight:bold;
+}
+button:hover{background:var(--blue-dark);}
+button.green{background:var(--green);} button.green:hover{background:var(--green-dark);}
+button.gold{background:var(--gold);color:#3a2c00;} button.gold:hover{background:var(--gold-dark);color:#fff;}
+button.ghost{background:#dfe9ee;color:var(--ink);min-width:160px;min-height:60px;font-size:20px;}
+button.ghost:hover{background:#cddde4;}
+button:disabled{background:#c7d3d8;color:#8a999f;cursor:not-allowed;}
+.choice-row{display:flex;flex-wrap:wrap;justify-content:center;}
+.center{text-align:center;}
+/* ---- coin jar ---- */
+.jar-box{position:relative;width:340px;margin:14px auto;}
+.jar-lid{
+  height:26px;background:#9fc4d1;border-radius:12px 12px 6px 6px;
+  margin:0 26px;border:3px solid #7ba9b9;
+}
+.jar-glass{
+  position:relative;height:300px;
+  border:6px solid #9fc4d1;border-top:none;
+  border-radius:0 0 60px 60px/0 0 44px 44px;
+  background:linear-gradient(180deg,rgba(210,235,243,.30),rgba(210,235,243,.55));
+  overflow:hidden;
+}
+.coin-layer{
+  position:absolute;left:0;right:0;bottom:0;top:0;
+  display:flex;flex-flow:row wrap-reverse;align-content:flex-start;
+  justify-content:center;gap:5px;padding:10px;
+}
+/* a coin = one dollar */
+.coin{
+  width:40px;height:40px;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#fbe79a,var(--gold) 62%,var(--gold-dark));
+  border:2px solid var(--gold-dark);
+  display:flex;align-items:center;justify-content:center;
+  color:#6b5200;font-size:16px;font-weight:bold;
+  transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .55s;
+}
+/* a bag = 100 coins, used for large amounts */
+.bag{
+  width:46px;height:42px;
+  background:linear-gradient(180deg,#f0d385,#cf9a2e);
+  border:2px solid var(--gold-dark);border-radius:8px 8px 14px 14px;
+  display:flex;align-items:center;justify-content:center;
+  color:#5a4200;font-size:14px;font-weight:bold;position:relative;
+  transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .55s;
+}
+.bag::before{
+  content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+  width:20px;height:10px;background:#cf9a2e;border:2px solid var(--gold-dark);
+  border-radius:6px 6px 0 0;
+}
+.flyer{position:absolute;transition:transform .8s ease-in,opacity .8s ease-in;z-index:5;}
+.jar-count{font-size:30px;font-weight:bold;text-align:center;margin-top:10px;color:var(--gold-dark);}
+/* small reference jar (modules 1,3,4) */
+.ref-jar{display:flex;align-items:center;gap:10px;background:#eaf3f6;
+  border-radius:12px;padding:8px 14px;}
+.ref-jar .mini-coins{display:flex;flex-wrap:wrap;width:120px;gap:2px;}
+.ref-jar .coin{width:22px;height:22px;font-size:10px;transition:none;}
+/* ---- price display ---- */
+.price-big{font-size:40px;font-weight:bold;color:var(--green-dark);}
+.coin-strip{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:14px 0;}
+.coin-strip .coin{transition:none;}
+/* ---- crowd icons (module 3) ---- */
+.crowd{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0;}
+.person{width:30px;height:46px;}
+/* ---- feedback ---- */
+.feedback{font-size:28px;margin:18px 0;padding:16px;border-radius:12px;}
+.feedback.ok{background:#e3f3e8;color:var(--green-dark);}
+.feedback.no{background:#fbecd9;color:#9a6512;}
+/* ---- menu cards ---- */
+.module-card{
+  display:flex;align-items:center;justify-content:space-between;
+  background:#f3f8fa;border:3px solid #d7e6ec;border-radius:14px;
+  padding:16px 20px;margin:12px 0;
+}
+.module-card.locked{opacity:.55;}
+.module-card .m-title{font-size:26px;font-weight:bold;}
+.tick{color:var(--green-dark);font-weight:bold;font-size:24px;}
+/* ---- print view ---- */
+#print{display:none;}
+@media print{
+  body{background:#fff;font-size:18px;}
+  #app{display:none;}
+  #print{display:block;max-width:700px;margin:0 auto;padding:20px;}
+  .print-line{border-bottom:2px solid #000;height:34px;margin:10px 0;}
+  .print-notes{border:2px solid #000;height:200px;margin-top:8px;}
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<!-- ====================== PRINT VIEW ====================== -->
+<div id="print">
+  <h1>Vending Venture — Session Record</h1>
+  <p>Name: <span class="print-line" style="display:inline-block;width:340px;"></span></p>
+  <p>Date: <span class="print-line" style="display:inline-block;width:240px;"></span></p>
+  <h3>Modules completed</h3>
+  <div id="print-modules"></div>
+  <h3>Final coin count (Module 2)</h3>
+  <p id="print-coins"></p>
+  <h3>VSS Notes</h3>
+  <div class="print-notes"></div>
+</div>
+
+<script>
+/* ============================================================
+   EDITABLE SCENARIO DATA
+   All game content lives in these arrays. Edit text/numbers
+   here to adjust the game — no other code changes needed.
+   ============================================================ */
+
+/* --- MODULE 0: "The Coin Jar" — builds the money concept --- */
+const MODULE0_STEPS = [
+  {kind:'intro', coins:10,
+    text:"This is your coin jar. You have 10 coins."},
+  {kind:'spend', amount:2, action:"Take the snack — 2 coins leave",
+    text:"You want a snack. A snack costs 2 coins."},
+  {kind:'spend', amount:2, action:"Take the snack — 2 coins leave",
+    text:"You want another snack. 2 more coins."},
+  {kind:'spend', amount:2, action:"Take the snack — 2 coins leave",
+    text:"Another snack. 2 more coins leave the jar."},
+  {kind:'spend', amount:2, action:"Take the snack — 2 coins leave",
+    text:"Another snack. 2 more coins leave the jar."},
+  {kind:'spend', amount:2, action:"Take the last snack — 2 coins leave",
+    text:"One more snack. The last 2 coins leave the jar."},
+  {kind:'empty',
+    text:"Your jar is EMPTY. You cannot buy anything else until you get more coins."},
+  {kind:'earn', amount:2, action:"Sell a snack — 2 coins go IN",
+    text:"How do you get more coins? You SELL things. When someone buys a snack from your machine, they give YOU coins."},
+  {kind:'earn', amount:2, action:"Sell another snack — 2 coins go IN",
+    text:"Another customer buys a snack. 2 more coins go IN to your jar."},
+  {kind:'quiz', q:"If the jar is empty, can you buy a snack?",
+    options:["YES","NO"], correct:"NO",
+    explainRight:"Right. An empty jar has no coins. No coins means you cannot buy.",
+    explainWrong:"Let's look again. An empty jar has no coins. With no coins you cannot buy. The answer is NO."},
+  {kind:'quiz', q:"When someone buys from your machine, do coins go IN or OUT of your jar?",
+    options:["IN","OUT"], correct:"IN",
+    explainRight:"Right. The customer pays YOU, so coins go IN to your jar.",
+    explainWrong:"Let's look again. When a customer buys from your machine, they pay YOU. Coins go IN."},
+  {kind:'rule',
+    text:"This is the most important rule of business: more coins coming IN than going OUT."}
+];
+
+/* --- MODULE 1: "What Things Cost" — prices as coin counts --- */
+const MODULE1_ITEMS = [
+  {name:"A candy bar", price:2, expected:"LITTLE",
+    note:"2 coins. Remember your jar of 10 coins? A candy bar costs LESS than your whole jar."},
+  {name:"Lunch", price:10, expected:"LOT",
+    note:"10 coins. That is your WHOLE jar of 10 coins for one lunch."},
+  {name:"A vending machine", price:3000, expected:"LOT",
+    note:"3,000 coins — 30 bags of 100. That is far MORE than your jar of 10 coins. This is a LOT."}
+];
+
+/* --- MODULE 2: "Startup Shopping" — buy/skip, jar drains --- */
+const MODULE2_START = 5000;
+const MODULE2_ITEMS = [
+  {name:"Vending machine",  price:3000, need:true,
+    why:"You cannot run a vending business with no machine."},
+  {name:"Snack inventory",  price:300,  need:true,
+    why:"An empty machine sells nothing. No snacks means no coins coming in."},
+  {name:"Drink inventory",  price:400,  need:true,
+    why:"Drinks bring in coins too. More to sell means more coins IN."},
+  {name:"Business license", price:50,   need:true,
+    why:"The license lets you legally run the machine."},
+  {name:"Insurance",        price:200,  need:true,
+    why:"Insurance protects your jar of coins if something goes wrong."},
+  {name:"Cleaning supplies",price:40,   need:true,
+    why:"A clean machine keeps customers coming and coins going IN."},
+  {name:"Cash float",       price:100,  need:true,
+    why:"The float makes change for customers so they can pay you."}
+];
+
+/* --- MODULE 3: "Where Should the Machine Go?" — placement --- */
+const MODULE3_LOCATIONS = [
+  {name:"A busy office",          crowd:5, good:true},
+  {name:"A quiet library",        crowd:1, good:false},
+  {name:"A busy gym",             crowd:4, good:true},
+  {name:"A school hallway",       crowd:5, good:true},
+  {name:"A hospital waiting room",crowd:4, good:true},
+  {name:"A gas station",          crowd:3, good:true},
+  {name:"An empty warehouse",     crowd:0, good:false},
+  {name:"A busy laundromat",      crowd:4, good:true}
+];
+
+/* --- MODULE 4: "Getting Customers" — marketing, all YES --- */
+const MODULE4_QUESTIONS = [
+  {q:"Will a sign on your machine bring more customers — more coins?", correct:"YES"},
+  {q:"Will stocking snacks people actually like bring more coins?", correct:"YES"},
+  {q:"Will keeping the machine clean bring more coins?", correct:"YES"},
+  {q:"Will checking the machine often bring more coins?", correct:"YES"},
+  {q:"Will asking the office what snacks they want bring more coins?", correct:"YES"}
+];
+
+const MODULE_TITLES = [
+  "Module 0 — The Coin Jar",
+  "Module 1 — What Things Cost",
+  "Module 2 — Startup Shopping",
+  "Module 3 — Where Should the Machine Go?",
+  "Module 4 — Getting Customers"
+];
+
+/* ============================================================
+   GAME STATE
+   ============================================================ */
+const state = {
+  completed:[false,false,false,false,false],
+  m2FinalCoins:null
+};
+const app = document.getElementById('app');
+
+/* ---------- small DOM helpers ---------- */
+function el(tag,cls,html){
+  const e=document.createElement(tag);
+  if(cls)e.className=cls;
+  if(html!=null)e.innerHTML=html;
+  return e;
+}
+function btn(label,onClick,cls){
+  const b=el('button',cls,label);
+  b.addEventListener('click',onClick);
+  return b;
+}
+function coinEl(){ return el('div','coin','1'); }
+function bagEl(){ return el('div','bag','100'); }
+/* a simple person icon for crowd visuals (no emoji) */
+function personEl(){
+  const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('class','person'); s.setAttribute('viewBox','0 0 30 46');
+  s.innerHTML='<circle cx="15" cy="9" r="8" fill="#5b9bb0"/>'+
+    '<rect x="6" y="19" width="18" height="24" rx="8" fill="#5b9bb0"/>';
+  return s;
+}
+
+/* ============================================================
+   COIN JAR — render + animations.
+   This is the single money metaphor used everywhere.
+   The Module 0 animations are the core teaching mechanism.
+   ============================================================ */
+
+/* Fill a coin-layer with the right mix of bags (100) and coins (1). */
+function renderUnits(layer,count){
+  layer.innerHTML='';
+  let bags=Math.floor(count/100), loose=count%100;
+  for(let i=0;i<bags;i++) layer.appendChild(bagEl());
+  for(let i=0;i<loose;i++) layer.appendChild(coinEl());
+}
+
+/* Build a full jar element. Returns {box, layer, label}. */
+function buildJar(count){
+  const box=el('div','jar-box');
+  box.appendChild(el('div','jar-lid'));
+  const glass=el('div','jar-glass');
+  const layer=el('div','coin-layer');
+  renderUnits(layer,count);
+  glass.appendChild(layer);
+  box.appendChild(glass);
+  const label=el('div','jar-count');
+  box.appendChild(label);
+  return {box,layer,label};
+}
+
+/* Animate coins LEAVING the jar (spending) — small amounts. */
+function spendCoins(layer,amount,cb){
+  const coins=[...layer.querySelectorAll('.coin,.bag')];
+  const leaving=coins.slice(-amount);
+  leaving.forEach((c,k)=>{
+    const x=Math.random()*160-80;
+    c.style.transitionDelay=(k*70)+'ms';
+    c.style.transform='translate('+x+'px,-260px) rotate('+x+'deg)';
+    c.style.opacity='0';
+  });
+  setTimeout(()=>{ leaving.forEach(c=>c.remove()); if(cb)cb(); },650+amount*70);
+}
+
+/* Animate coins going IN to the jar (earning/selling). */
+function earnCoins(layer,amount,cb){
+  const added=[];
+  for(let k=0;k<amount;k++){
+    const c=coinEl();
+    c.style.transform='translateY(-300px)';
+    c.style.opacity='0';
+    layer.appendChild(c);
+    added.push(c);
+  }
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    added.forEach((c,k)=>{
+      c.style.transitionDelay=(k*90)+'ms';
+      c.style.transform='';
+      c.style.opacity='1';
+    });
+  }));
+  setTimeout(()=>{ added.forEach(c=>c.style.transitionDelay=''); if(cb)cb(); },700+amount*90);
+}
+
+/* Animate a large purchase: bags/coins fly OUT of the jar. */
+function spendLarge(box,layer,oldCount,newCount,cb){
+  const spent=oldCount-newCount;
+  const n=Math.max(2,Math.min(14,Math.round(spent/100)));
+  for(let k=0;k<n;k++){
+    const f=spent>=200?bagEl():coinEl();
+    f.classList.add('flyer');
+    f.style.left=(35+Math.random()*55)+'%';
+    f.style.top=(35+Math.random()*20)+'%';
+    box.appendChild(f);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      f.style.transitionDelay=(k*55)+'ms';
+      f.style.transform='translate('+(Math.random()*200-100)+'px,360px) rotate(200deg)';
+      f.style.opacity='0';
+    }));
+    setTimeout(()=>f.remove(),1300);
+  }
+  setTimeout(()=>renderUnits(layer,newCount),280);
+  setTimeout(()=>{ if(cb)cb(); },950);
+}
+
+/* Small static reference jar shown in Modules 1, 3, 4. */
+function refJar(count){
+  const wrap=el('div','ref-jar');
+  const mini=el('div','mini-coins');
+  for(let i=0;i<count;i++) mini.appendChild(coinEl());
+  wrap.appendChild(mini);
+  wrap.appendChild(el('div',null,'<b>Your jar:<br>'+count+' coins</b>'));
+  return wrap;
+}
+
+/* ============================================================
+   SHELL — header with title + Menu/Print buttons
+   ============================================================ */
+function shell(headerExtra){
+  app.innerHTML='';
+  const header=el('div','header');
+  header.appendChild(el('h1',null,'Vending Venture'));
+  const right=el('div');
+  if(headerExtra) right.appendChild(headerExtra);
+  header.appendChild(right);
+  app.appendChild(header);
+  const panel=el('div','panel');
+  app.appendChild(panel);
+  return panel;
+}
+function navButtons(panel,showMenu){
+  const row=el('div','center');
+  if(showMenu) row.appendChild(btn('Menu',()=>renderMenu(),'ghost'));
+  row.appendChild(btn('Print record',()=>doPrint(),'ghost'));
+  panel.appendChild(row);
+}
+
+/* ============================================================
+   TITLE SCREEN
+   ============================================================ */
+function renderTitle(){
+  const panel=shell();
+  panel.appendChild(el('div','center screen-text',
+    'A training game about running a vending machine business.'));
+  const jar=buildJar(10);
+  jar.label.textContent='10 coins';
+  panel.appendChild(jar.box);
+  panel.appendChild(el('div','center small-note',
+    'Every coin is one dollar. Money is a jar of coins that runs out.'));
+  const row=el('div','center');
+  row.appendChild(btn('Begin',()=>renderMenu(),'green'));
+  panel.appendChild(row);
+}
+
+/* ============================================================
+   MODULE MENU — each module unlocks the next.
+   Module 0 is always available and fully replayable.
+   ============================================================ */
+function renderMenu(){
+  const panel=shell();
+  panel.appendChild(el('div','center screen-text','Choose a module.'));
+  for(let i=0;i<5;i++){
+    const unlocked = (i===0) || state.completed[i-1];
+    const card=el('div','module-card'+(unlocked?'':' locked'));
+    const tag = state.completed[i] ? ' <span class="tick">&#10003; done</span>' : '';
+    card.appendChild(el('div','m-title',MODULE_TITLES[i]+tag));
+    if(unlocked){
+      const label = (i===0 && state.completed[0]) ? 'Replay' :
+                    state.completed[i] ? 'Replay' : 'Start';
+      card.appendChild(btn(label,()=>startModule(i),'green'));
+    }else{
+      card.appendChild(el('div','small-note','Locked'));
+    }
+    panel.appendChild(card);
+  }
+  navButtons(panel,false);
+}
+function startModule(i){
+  if(i===0)renderM0(0);
+  if(i===1)renderM1(0);
+  if(i===2)renderM2(0,MODULE2_START);
+  if(i===3)renderM3(0);
+  if(i===4)renderM4(0);
+}
+
+/* ============================================================
+   MODULE 0 — "The Coin Jar"
+   Builds the money concept through pure visual scarcity.
+   Mandatory before Module 1. Fully replayable.
+   ============================================================ */
+let m0count=10;          // live coin count, persists across steps
+function renderM0(i){
+  const step=MODULE0_STEPS[i];
+  if(i===0) m0count=step.coins;   // reset jar at the start
+  const panel=shell();
+  panel.appendChild(el('div','center small-note',MODULE_TITLES[0]));
+  panel.appendChild(el('div','center screen-text',step.text));
+
+  const jar=buildJar(m0count);
+  jar.label.textContent='You have '+m0count+' coin'+(m0count===1?'':'s');
+  panel.appendChild(jar.box);
+
+  const ctrl=el('div','center');
+  panel.appendChild(ctrl);
+
+  /* ---- SPEND step: one coin-out animation ---- */
+  if(step.kind==='spend'){
+    const act=btn(step.action,()=>{
+      act.disabled=true;
+      spendCoins(jar.layer,step.amount,()=>{
+        m0count-=step.amount;
+        jar.label.textContent = m0count>0
+          ? 'You have '+m0count+' coins left'
+          : 'Your jar is EMPTY';
+        ctrl.innerHTML='';
+        ctrl.appendChild(btn('Next',()=>renderM0(i+1),'green'));
+      });
+    },'gold');
+    ctrl.appendChild(act);
+  }
+  /* ---- EARN step: one coin-in animation ---- */
+  else if(step.kind==='earn'){
+    const act=btn(step.action,()=>{
+      act.disabled=true;
+      earnCoins(jar.layer,step.amount,()=>{
+        m0count+=step.amount;
+        jar.label.textContent='You have '+m0count+' coins';
+        ctrl.innerHTML='';
+        ctrl.appendChild(btn('Next',()=>renderM0(i+1),'green'));
+      });
+    },'green');
+    ctrl.appendChild(act);
+  }
+  /* ---- QUIZ step: two-button check ---- */
+  else if(step.kind==='quiz'){
+    const fb=el('div');
+    panel.appendChild(fb);
+    step.options.forEach(opt=>{
+      ctrl.appendChild(btn(opt,()=>{
+        const right = opt===step.correct;
+        fb.innerHTML='';
+        fb.appendChild(el('div','feedback '+(right?'ok':'no'),
+          right?step.explainRight:step.explainWrong));
+        ctrl.innerHTML='';
+        ctrl.appendChild(btn('Next',()=>renderM0(i+1),'green'));
+      }));
+    });
+  }
+  /* ---- RULE step: final screen of the module ---- */
+  else if(step.kind==='rule'){
+    ctrl.appendChild(btn('Finish module',()=>{
+      state.completed[0]=true;
+      renderMenu();
+    },'green'));
+  }
+  /* ---- INTRO / EMPTY: plain Next ---- */
+  else{
+    ctrl.appendChild(btn('Next',()=>renderM0(i+1),'green'));
+  }
+  navButtons(panel,true);
+}
+
+/* ============================================================
+   MODULE 1 — "What Things Cost"
+   Prices shown as dollars AND a coin/bag visual.
+   ============================================================ */
+function renderM1(i){
+  if(i>=MODULE1_ITEMS.length){
+    state.completed[1]=true; return renderMenu();
+  }
+  const item=MODULE1_ITEMS[i];
+  const panel=shell(refJar(10));
+  panel.appendChild(el('div','center small-note',MODULE_TITLES[1]));
+  panel.appendChild(el('div','center screen-text',item.name+' costs:'));
+  panel.appendChild(el('div','center price-big','$'+item.price.toLocaleString()));
+
+  /* visual: coins for small amounts, bags for large ones */
+  const strip=el('div','coin-strip');
+  if(item.price<=30){
+    for(let k=0;k<item.price;k++) strip.appendChild(coinEl());
+  }else{
+    const bags=Math.round(item.price/100);
+    for(let k=0;k<bags;k++) strip.appendChild(bagEl());
+    strip.appendChild(el('div','small-note','&nbsp; '+bags+' bags of 100 coins'));
+  }
+  panel.appendChild(strip);
+
+  panel.appendChild(el('div','center screen-text','Is this a LITTLE or a LOT?'));
+  const ctrl=el('div','center');
+  const fb=el('div');
+  ['LITTLE','LOT'].forEach(opt=>{
+    ctrl.appendChild(btn(opt,()=>{
+      const right=opt===item.expected;
+      fb.innerHTML='';
+      fb.appendChild(el('div','feedback '+(right?'ok':'no'),item.note));
+      ctrl.innerHTML='';
+      ctrl.appendChild(btn('Next',()=>renderM1(i+1),'green'));
+    }));
+  });
+  panel.appendChild(ctrl);
+  panel.appendChild(fb);
+  navButtons(panel,true);
+}
+
+/* ============================================================
+   MODULE 2 — "Startup Shopping"
+   Start with 5,000 coins. Buy or skip each item.
+   Coins visibly drain from the jar on every purchase.
+   ============================================================ */
+function renderM2(i,coins){
+  /* ---- end of list: summary ---- */
+  if(i>=MODULE2_ITEMS.length){
+    state.m2FinalCoins=coins;
+    state.completed[2]=true;
+    const panel=shell();
+    panel.appendChild(el('div','center small-note',MODULE_TITLES[2]));
+    const jar=buildJar(coins);
+    jar.label.textContent=coins.toLocaleString()+' coins  ($'+coins.toLocaleString()+')';
+    panel.appendChild(jar.box);
+    panel.appendChild(el('div','center screen-text',
+      'You have '+coins.toLocaleString()+' coins left. '+
+      'Now you need customers to put coins BACK IN.'));
+    const ctrl=el('div','center');
+    ctrl.appendChild(btn('Finish module',()=>renderMenu(),'green'));
+    panel.appendChild(ctrl);
+    navButtons(panel,true);
+    return;
+  }
+
+  const item=MODULE2_ITEMS[i];
+  const panel=shell();
+  panel.appendChild(el('div','center small-note',MODULE_TITLES[2]));
+
+  const jar=buildJar(coins);
+  jar.label.textContent=coins.toLocaleString()+' coins in your jar  ($'+coins.toLocaleString()+')';
+  panel.appendChild(jar.box);
+
+  panel.appendChild(el('div','center screen-text',
+    item.name+' costs $'+item.price.toLocaleString()+
+    ' ('+item.price.toLocaleString()+' coins).'));
+
+  const ctrl=el('div','center');
+  const fb=el('div');
+
+  const buyBtn=btn('BUY — coins leave jar',()=>{
+    buyBtn.disabled=true; skipBtn.disabled=true;
+    const after=coins-item.price;
+    spendLarge(jar.box,jar.layer,coins,after,()=>{
+      jar.label.textContent=after.toLocaleString()+
+        ' coins left  ($'+after.toLocaleString()+')';
+      fb.innerHTML='';
+      fb.appendChild(el('div','feedback ok',
+        item.price.toLocaleString()+' coins left the jar. '+item.why));
+      ctrl.innerHTML='';
+      ctrl.appendChild(btn('Next',()=>renderM2(i+1,after),'green'));
+    });
+  },'gold');
+
+  const skipBtn=btn('SKIP — keep coins',()=>{
+    buyBtn.disabled=true; skipBtn.disabled=true;
+    fb.innerHTML='';
+    fb.appendChild(el('div','feedback no',
+      'You kept your coins. But '+item.why.charAt(0).toLowerCase()+item.why.slice(1)));
+    ctrl.innerHTML='';
+    ctrl.appendChild(btn('Next',()=>renderM2(i+1,coins),'green'));
+  },'green');
+
+  ctrl.appendChild(buyBtn);
+  ctrl.appendChild(skipBtn);
+  panel.appendChild(ctrl);
+  panel.appendChild(fb);
+  navButtons(panel,true);
+}
+
+/* ============================================================
+   MODULE 3 — "Where Should the Machine Go?"
+   Crowd icons show how many people will put coins in the jar.
+   ============================================================ */
+function renderM3(i){
+  if(i>=MODULE3_LOCATIONS.length){
+    state.completed[3]=true; return renderMenu();
+  }
+  const loc=MODULE3_LOCATIONS[i];
+  const panel=shell(refJar(10));
+  panel.appendChild(el('div','center small-note',MODULE_TITLES[3]));
+  panel.appendChild(el('div','center screen-text',loc.name+'.'));
+
+  /* crowd visual = how many people could put coins in your jar */
+  const crowd=el('div','crowd');
+  if(loc.crowd===0){
+    crowd.appendChild(el('div','small-note','No people here.'));
+  }else{
+    for(let k=0;k<loc.crowd;k++) crowd.appendChild(personEl());
+  }
+  panel.appendChild(crowd);
+  panel.appendChild(el('div','center small-note',
+    'People here who could put coins in your jar: '+loc.crowd));
+
+  panel.appendChild(el('div','center screen-text','Is this a GOOD spot or a BAD spot?'));
+  const ctrl=el('div','center');
+  const fb=el('div');
+  [['GOOD spot',true],['BAD spot',false]].forEach(([label,val])=>{
+    ctrl.appendChild(btn(label,()=>{
+      const right=val===loc.good;
+      const msg=loc.good
+        ? 'Lots of people here. Lots of people means lots of coins going IN to your jar. This is a GOOD spot.'
+        : 'Few people here. Few people means few coins going IN to your jar. This is a BAD spot.';
+      fb.innerHTML='';
+      fb.appendChild(el('div','feedback '+(right?'ok':'no'),
+        (right?'Right. ':'Let’s look again. ')+msg));
+      ctrl.innerHTML='';
+      ctrl.appendChild(btn('Next',()=>renderM3(i+1),'green'));
+    }));
+  });
+  panel.appendChild(ctrl);
+  panel.appendChild(fb);
+  navButtons(panel,true);
+}
+
+/* ============================================================
+   MODULE 4 — "Getting Customers"
+   Every question framed as: will this put more coins in the jar?
+   ============================================================ */
+function renderM4(i){
+  if(i>=MODULE4_QUESTIONS.length){
+    state.completed[4]=true; return renderMenu();
+  }
+  const item=MODULE4_QUESTIONS[i];
+  const panel=shell(refJar(10));
+  panel.appendChild(el('div','center small-note',MODULE_TITLES[4]));
+  panel.appendChild(el('div','center screen-text',item.q));
+
+  const ctrl=el('div','center');
+  const fb=el('div');
+  ['YES','NO'].forEach(opt=>{
+    ctrl.appendChild(btn(opt,()=>{
+      const right=opt===item.correct;
+      fb.innerHTML='';
+      fb.appendChild(el('div','feedback '+(right?'ok':'no'),
+        right
+          ? 'Right. More coins coming in than going out — that’s good business.'
+          : 'Let’s look again. This brings more customers, so more coins go IN. The answer is YES.'));
+      ctrl.innerHTML='';
+      ctrl.appendChild(btn('Next',()=>renderM4(i+1),'green'));
+    }));
+  });
+  panel.appendChild(ctrl);
+  panel.appendChild(fb);
+  navButtons(panel,true);
+}
+
+/* ============================================================
+   PRINT VIEW — handwritten name/date lines, no typed input.
+   ============================================================ */
+function doPrint(){
+  const list=document.getElementById('print-modules');
+  list.innerHTML='';
+  for(let i=0;i<5;i++){
+    const mark=state.completed[i]?'[X]':'[ ]';
+    list.appendChild(el('p',null,mark+' '+MODULE_TITLES[i]));
+  }
+  document.getElementById('print-coins').textContent =
+    state.m2FinalCoins==null
+      ? 'Module 2 not completed.'
+      : state.m2FinalCoins.toLocaleString()+' coins  ($'+state.m2FinalCoins.toLocaleString()+')';
+  window.print();
+}
+
+/* ---- start the game ---- */
+renderTitle();
+</script>
+</body>
+</html>
