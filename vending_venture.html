@@ -90,10 +90,13 @@ button:disabled{
 /* ---- coin jar ---- */
 .jar-box{position:relative;width:330px;margin:26px auto 6px;}
 .jar-lid{
-  height:24px;width:74%;margin:0 auto;
-  background:linear-gradient(180deg,#bcd6de,#92b6c1);
+  height:25px;width:74%;margin:0 auto;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 4px,rgba(0,0,0,.10) 4px 8px),
+    linear-gradient(180deg,#cfe1e7,#9cbcc6 60%,#86aab4);
   border-radius:13px 13px 7px 7px;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 3px 8px -4px rgba(36,55,63,.5);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -3px 6px -3px rgba(0,0,0,.28),
+             0 3px 8px -4px rgba(36,55,63,.5);
 }
 .jar-glass{
   position:relative;height:300px;margin-top:2px;
@@ -105,43 +108,35 @@ button:disabled{
              0 14px 30px -18px rgba(36,55,63,.5);
   overflow:hidden;
 }
-/* glass shine */
+/* glass shine — vertical streak */
 .jar-glass::after{
-  content:"";position:absolute;top:8px;left:14px;width:34px;bottom:46px;
-  border-radius:18px;
-  background:linear-gradient(180deg,rgba(255,255,255,.75),rgba(255,255,255,0));
+  content:"";position:absolute;top:8px;left:14px;width:30px;bottom:46px;
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,0));
   pointer-events:none;
+}
+/* glass shine — broad top sheen */
+.jar-glass::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:44%;
+  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,0));
+  border-radius:16px 16px 0 0;pointer-events:none;
 }
 .coin-layer{
   position:absolute;left:0;right:0;bottom:0;top:0;
   display:flex;flex-flow:row wrap-reverse;align-content:flex-start;
   justify-content:center;gap:6px;padding:12px;
 }
-/* a coin = one dollar */
+/* a coin = one dollar — illustrated SVG art lives in #coinArt */
 .coin{
-  width:40px;height:40px;border-radius:50%;
-  background:radial-gradient(circle at 34% 28%,#fff1c2,var(--gold-lt) 30%,var(--gold) 64%,var(--gold-dk));
-  border:1px solid var(--gold-dk);
-  display:flex;align-items:center;justify-content:center;
-  color:#7a5800;font-size:15px;font-weight:800;
-  box-shadow:0 3px 6px -3px rgba(36,55,63,.55),inset 0 1px 2px rgba(255,255,255,.7);
+  width:42px;height:42px;
   transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .55s;
 }
-/* a bag = 100 coins, used for large amounts */
+/* a bag = 100 coins — illustrated SVG art lives in #bagArt */
 .bag{
-  width:46px;height:42px;
-  background:linear-gradient(160deg,#f3da8f,#d3a23a 70%,#b9870f);
-  border:1px solid var(--gold-dk);border-radius:9px 9px 16px 16px;
-  display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;
-  color:#5a4200;font-size:13px;font-weight:800;position:relative;
-  box-shadow:0 4px 8px -4px rgba(36,55,63,.55),inset 0 2px 3px rgba(255,255,255,.5);
+  width:48px;height:48px;
   transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .55s;
 }
-.bag::before{
-  content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);
-  width:20px;height:11px;background:#c69428;
-  border:1px solid var(--gold-dk);border-radius:6px 6px 0 0;
-}
+.coin svg,.bag svg{width:100%;height:100%;display:block;overflow:visible;}
 .flyer{position:absolute;transition:transform .8s ease-in,opacity .8s ease-in;z-index:5;}
 .jar-count{
   font-size:26px;font-weight:800;text-align:center;margin-top:16px;
@@ -164,7 +159,7 @@ button:disabled{
   display:flex;flex-wrap:wrap;width:112px;gap:3px;
   padding:6px;border-radius:9px;background:rgba(0,0,0,.12);
 }
-.ref-jar .coin{width:20px;height:20px;font-size:9px;transition:none;box-shadow:none;}
+.ref-jar .coin{width:23px;height:23px;transition:none;}
 /* ---- price display ---- */
 .price-big{
   font-size:46px;font-weight:800;color:var(--green-dark);
@@ -222,6 +217,78 @@ button:disabled{
 </style>
 </head>
 <body>
+
+<!-- ============================================================
+     ILLUSTRATED ART — coin and money-bag drawn as detailed SVG.
+     Defined once here, stamped wherever a coin/bag is needed.
+     ============================================================ -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <radialGradient id="gCoinFace" cx="38%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#fff8da"/>
+      <stop offset="42%" stop-color="#f2ce63"/>
+      <stop offset="78%" stop-color="#d4a02b"/>
+      <stop offset="100%" stop-color="#a4760f"/>
+    </radialGradient>
+    <radialGradient id="gCoinInner" cx="50%" cy="42%" r="64%">
+      <stop offset="0" stop-color="#f1d886"/>
+      <stop offset="100%" stop-color="#cf9f2c"/>
+    </radialGradient>
+    <radialGradient id="gShine" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gBagBody" x1="0" y1="0" x2="1" y2="1.05">
+      <stop offset="0" stop-color="#f4d77f"/>
+      <stop offset="50%" stop-color="#d9a838"/>
+      <stop offset="100%" stop-color="#a9790f"/>
+    </linearGradient>
+    <linearGradient id="gBagTie" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bd8d1f"/>
+      <stop offset="100%" stop-color="#6f4f08"/>
+    </linearGradient>
+  </defs>
+
+  <!-- one dollar coin: rim, reeded edge, recessed face, raised $, shine -->
+  <symbol id="coinArt" viewBox="0 0 64 64">
+    <ellipse cx="32" cy="58" rx="20" ry="3.4" fill="#243038" opacity="0.20"/>
+    <circle cx="32" cy="33.5" r="25.5" fill="#946609"/>
+    <circle cx="32" cy="30" r="25.5" fill="url(#gCoinFace)" stroke="#7c560b" stroke-width="1"/>
+    <circle cx="32" cy="30" r="21.6" fill="none" stroke="#a9790f"
+            stroke-width="3.4" stroke-dasharray="1.5 2.4" stroke-opacity="0.75"/>
+    <circle cx="32" cy="30" r="18.4" fill="url(#gCoinInner)" stroke="#caa236" stroke-width="0.9"/>
+    <g font-family="Georgia,'Times New Roman',serif" font-weight="bold"
+       font-size="27" text-anchor="middle">
+      <text x="31" y="39" fill="#fff4c8" fill-opacity="0.7">$</text>
+      <text x="33" y="40.4" fill="#6f4c07">$</text>
+      <text x="32" y="39.7" fill="#b9871d">$</text>
+    </g>
+    <ellipse cx="23.5" cy="17.5" rx="12.5" ry="6.6" fill="url(#gShine)"/>
+  </symbol>
+
+  <!-- money bag = 100 coins: gathered neck, tie band, body, "100" stamp -->
+  <symbol id="bagArt" viewBox="0 0 64 64">
+    <ellipse cx="32" cy="61" rx="20" ry="3.2" fill="#243038" opacity="0.20"/>
+    <path d="M23 22 L20 9 Q32 4 44 9 L41 22 Z"
+          fill="url(#gBagBody)" stroke="#7c560b" stroke-width="0.8"/>
+    <path d="M22 21 C11 25 7 41 13 51 C17 58 24 61.5 32 61.5
+             C40 61.5 47 58 51 51 C57 41 53 25 42 21 C38 19.5 26 19.5 22 21 Z"
+          fill="url(#gBagBody)" stroke="#7c560b" stroke-width="1"/>
+    <ellipse cx="24" cy="35" rx="8" ry="13" fill="#ffffff" opacity="0.16"/>
+    <path d="M18 49 Q26 54 32 52.5" fill="none" stroke="#8a6210"
+          stroke-width="1.4" stroke-opacity="0.5" stroke-linecap="round"/>
+    <path d="M33 53 Q40 53 46 48" fill="none" stroke="#8a6210"
+          stroke-width="1.4" stroke-opacity="0.5" stroke-linecap="round"/>
+    <rect x="19.5" y="17.5" width="25" height="9" rx="4.5"
+          fill="url(#gBagTie)" stroke="#5f4307" stroke-width="0.8"/>
+    <rect x="22" y="19.3" width="20" height="2.3" rx="1.1" fill="#ffffff" opacity="0.30"/>
+    <g font-family="'Segoe UI',Arial,sans-serif" font-weight="800"
+       font-size="15" text-anchor="middle">
+      <text x="32.7" y="46.6" fill="#5f4307">100</text>
+      <text x="32" y="45.8" fill="#fff3cf">100</text>
+    </g>
+  </symbol>
+</svg>
 
 <div id="app"></div>
 
@@ -356,8 +423,8 @@ function btn(label,onClick,cls){
   b.addEventListener('click',onClick);
   return b;
 }
-function coinEl(){ return el('div','coin','1'); }
-function bagEl(){ return el('div','bag','100'); }
+function coinEl(){ return el('div','coin','<svg viewBox="0 0 64 64"><use href="#coinArt" width="64" height="64"/></svg>'); }
+function bagEl(){ return el('div','bag','<svg viewBox="0 0 64 64"><use href="#bagArt" width="64" height="64"/></svg>'); }
 /* a simple person icon for crowd visuals (no emoji) */
 function personEl(){
   const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
