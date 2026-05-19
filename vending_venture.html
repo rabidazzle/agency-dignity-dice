@@ -273,18 +273,18 @@ const MODULE0_STEPS = [
     text:"One more snack. The last 2 coins leave the jar."},
   {kind:'empty',
     text:"Your jar is EMPTY. You cannot buy anything else until you get more coins."},
-  {kind:'earn', amount:2, action:"Sell a snack — 2 coins go IN",
-    text:"How do you get more coins? You SELL things. When someone buys a snack from your machine, they give YOU coins."},
-  {kind:'earn', amount:2, action:"Sell another snack — 2 coins go IN",
-    text:"Another customer buys a snack. 2 more coins go IN to your jar."},
-  {kind:'quiz', q:"If the jar is empty, can you buy a snack?",
+  {kind:'quiz', q:"Look at your jar. It is empty. Can you buy a snack?",
     options:["YES","NO"], correct:"NO",
-    explainRight:"Right. An empty jar has no coins. No coins means you cannot buy.",
-    explainWrong:"Let's look again. An empty jar has no coins. With no coins you cannot buy. The answer is NO."},
-  {kind:'quiz', q:"When someone buys from your machine, do coins go IN or OUT of your jar?",
+    explainRight:"Right. An empty jar has zero coins. With zero coins, you cannot buy anything.",
+    explainWrong:"Let's look again. Your jar is empty — zero coins. A snack costs 2 coins. With zero coins you cannot buy it. Try again."},
+  {kind:'earn', amount:2, action:"Sell a snack — 2 coins go IN",
+    text:"How do you get more coins? You SELL things. When a customer buys a snack from your machine, they pay YOU. Those coins go IN to your jar."},
+  {kind:'earn', amount:2, action:"Sell another snack — 2 coins go IN",
+    text:"Another customer buys a snack and pays you. 2 more coins go IN to your jar."},
+  {kind:'quiz', q:"A customer pays you 2 coins for a snack. Do those coins go IN to your jar, or OUT of your jar?",
     options:["IN","OUT"], correct:"IN",
-    explainRight:"Right. The customer pays YOU, so coins go IN to your jar.",
-    explainWrong:"Let's look again. When a customer buys from your machine, they pay YOU. Coins go IN."},
+    explainRight:"Right. The customer pays YOU, so the coins move IN to your jar. Selling puts coins IN.",
+    explainWrong:"Let's look again. The customer is paying YOU for the snack. Their coins come to you, so they go IN to your jar. Try again."},
   {kind:'rule',
     text:"This is the most important rule of business: more coins coming IN than going OUT."}
 ];
@@ -550,7 +550,8 @@ function renderM0(i){
   if(i===0) m0count=step.coins;   // reset jar at the start
   const panel=shell();
   panel.appendChild(el('div','center small-note',MODULE_TITLES[0]));
-  panel.appendChild(el('div','center screen-text',step.text));
+  /* narrative steps carry .text; quiz steps carry .q */
+  panel.appendChild(el('div','center screen-text',step.text||step.q));
 
   const jar=buildJar(m0count);
   jar.label.textContent='You have '+m0count+' coin'+(m0count===1?'':'s');
@@ -587,7 +588,9 @@ function renderM0(i){
     },'green');
     ctrl.appendChild(act);
   }
-  /* ---- QUIZ step: two-button check ---- */
+  /* ---- QUIZ step: two-button check. A wrong answer shows the
+         correction and lets him try again; only a correct answer
+         reveals the Next button. ---- */
   else if(step.kind==='quiz'){
     const fb=el('div');
     panel.appendChild(fb);
@@ -597,8 +600,10 @@ function renderM0(i){
         fb.innerHTML='';
         fb.appendChild(el('div','feedback '+(right?'ok':'no'),
           right?step.explainRight:step.explainWrong));
-        ctrl.innerHTML='';
-        ctrl.appendChild(btn('Next',()=>renderM0(i+1),'green'));
+        if(right){
+          ctrl.innerHTML='';
+          ctrl.appendChild(btn('Next',()=>renderM0(i+1),'green'));
+        }
       }));
     });
   }
