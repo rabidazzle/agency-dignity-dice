@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Vending Machine Shift — Agency, Dignity, and Dice</title>
+<meta name="description" content="A calm, accessible, money-free game about stocking and caring for a vending machine. Built for the Agency, Dignity, and Dice program.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a1a;
+  --parchment: #f5f0e8;
+  --parchment-deep: #ebe4d6;
+  --crimson: #8b2232;
+  --gold: #c49a2a;
+  --gold-soft: #dcb345;
+  --warm-gray: #4a4542;
+  --light-gray: #d4cfc7;
+  --white: #fefcf8;
+  --good: #2f7d4f;      /* success green, AA on white */
+  --alert: #b45309;     /* maintenance amber */
+
+  /* Product accent colors — used for color+icon+text triple coding */
+  --p-water:   #2a6f97;
+  --p-juice:   #c2410c;
+  --p-pretzel: #92602b;
+  --p-trail:   #6b4f2a;
+  --p-granola: #7a5230;
+  --p-fruit:   #a3282f;
+  --p-cracker: #9a7b12;
+  --p-veggie:  #3f7a3f;
+
+  --focus: 3px solid var(--gold);
+  --radius: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ---------- Accessibility helpers ---------- */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: var(--focus); outline-offset: 3px; border-radius: 4px;
+}
+.skip-link {
+  position: absolute; left: 1rem; top: -3.5rem;
+  background: var(--ink); color: var(--white);
+  padding: 0.75rem 1.25rem; border-radius: 8px; z-index: 100;
+  text-decoration: none; font-weight: 600;
+  transition: top 0.2s ease;
+}
+.skip-link:focus { top: 1rem; }
+
+/* ---------- Header ---------- */
+header.topbar {
+  background: var(--ink);
+  color: var(--parchment);
+  padding: 1rem clamp(1rem, 4vw, 2.5rem);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem;
+  border-bottom: 3px solid var(--gold);
+}
+.brand { display: flex; align-items: center; gap: 0.85rem; margin-right: auto; }
+.brand img { width: 52px; height: 52px; border-radius: 50%; flex: none; }
+.brand-text { line-height: 1.2; }
+.brand-text .game-name {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: clamp(1.25rem, 3.2vw, 1.7rem); font-weight: 700;
+}
+.brand-text .prog-name {
+  font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--gold-soft); font-weight: 600;
+}
+.controls { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 1rem; font-weight: 600;
+  padding: 0.7rem 1.15rem;
+  border-radius: 10px; border: 2px solid transparent;
+  cursor: pointer; background: var(--parchment); color: var(--ink);
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  min-height: 48px; transition: transform 0.12s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-outline { background: transparent; color: var(--parchment); border-color: var(--gold); }
+.btn-outline:hover { background: var(--gold); color: var(--ink); }
+.btn-primary { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+.btn-primary:hover { background: var(--gold-soft); }
+.btn[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--ink); }
+
+/* ---------- Layout ---------- */
+main { padding: clamp(1rem, 3vw, 2rem); max-width: 1200px; margin: 0 auto; }
+.shift-banner {
+  background: var(--parchment-deep);
+  border: 1px solid var(--light-gray);
+  border-left: 6px solid var(--crimson);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem;
+}
+.shift-banner h1 {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: clamp(1.4rem, 3.5vw, 2rem); font-weight: 700; line-height: 1.15;
+  margin-right: auto;
+}
+.shift-count {
+  font-weight: 600; color: var(--warm-gray);
+  background: var(--white); border: 1px solid var(--light-gray);
+  padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.95rem;
+}
+
+.game-grid {
+  display: grid; gap: 1.5rem;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr);
+  align-items: start;
+}
+@media (max-width: 860px) { .game-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Machine ---------- */
+.machine {
+  background: linear-gradient(160deg, #2a2622, #1c1917);
+  border-radius: 18px;
+  padding: 1rem;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  border: 2px solid #3a352f;
+}
+.machine-display {
+  background: #0f1512; color: #7fe3a8;
+  font-family: 'Source Sans 3', monospace; font-weight: 600;
+  border-radius: 8px; padding: 0.6rem 1rem; margin-bottom: 0.9rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  border: 1px solid #24302a; letter-spacing: 0.04em;
+  font-size: 0.95rem;
+}
+.machine-display .dot { color: #7fe3a8; animation: blink 2s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0.25; } }
+
+.glass {
+  position: relative;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0) 40%),
+    var(--parchment);
+  border-radius: 10px; padding: 0.9rem;
+  border: 3px solid #4a453f;
+}
+.slots {
+  display: grid; gap: 0.85rem;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+}
+@media (max-width: 480px) { .slots { grid-template-columns: repeat(2, 1fr) !important; } }
+
+.slot {
+  position: relative;
+  background: var(--white);
+  border: 2px solid var(--light-gray);
+  border-radius: var(--radius);
+  padding: 0.75rem 0.6rem 0.85rem;
+  text-align: center; cursor: pointer;
+  min-height: 150px;
+  display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  font: inherit; color: inherit;
+}
+.slot:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+.slot .code {
+  position: absolute; top: 0.4rem; left: 0.5rem;
+  font-size: 0.75rem; font-weight: 700; color: var(--warm-gray);
+  letter-spacing: 0.05em;
+}
+.slot .accent {
+  width: 100%; height: 6px; border-radius: 4px;
+  background: var(--accent, var(--light-gray)); margin-top: 0.4rem;
+}
+.slot .emoji { font-size: 2.3rem; line-height: 1; margin-top: 0.15rem; }
+.slot .pname { font-weight: 700; font-size: 1rem; }
+.slot .dots { display: flex; gap: 4px; justify-content: center; margin-top: auto; }
+.slot .dots i {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--light-gray); border: 1px solid #bdb6ab;
+}
+.slot .dots i.on { background: var(--accent, var(--good)); border-color: transparent; }
+.slot .stocklabel { font-size: 0.85rem; color: var(--warm-gray); font-weight: 600; }
+
+/* target-able (matches current selection) */
+.slot.targetable { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(196,154,42,0.35); }
+.slot.full { opacity: 0.96; }
+
+/* status badges */
+.slot .status {
+  position: absolute; top: 0.35rem; right: 0.4rem;
+  font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.45rem;
+  border-radius: 999px; display: inline-flex; align-items: center; gap: 0.25rem;
+  color: var(--white);
+}
+.status.jam { background: var(--alert); }
+.status.expired { background: var(--crimson); }
+.slot.jam { border-color: var(--alert); background: #fff8ef; }
+.slot.expired { border-color: var(--crimson); background: #fdf3f2; }
+
+/* smudges on the glass */
+.smudge {
+  position: absolute; width: 58px; height: 46px; border-radius: 48% 52% 55% 45%;
+  background: radial-gradient(circle at 35% 35%, rgba(120,120,120,0.42), rgba(120,120,120,0.14));
+  border: none; cursor: pointer; z-index: 3;
+  box-shadow: inset 0 0 8px rgba(80,80,80,0.3);
+}
+.smudge::after {
+  content: "smudge"; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700; color: #333;
+}
+.smudge.targetable { outline: var(--focus); }
+
+.tray {
+  margin-top: 0.9rem; height: 26px; border-radius: 6px;
+  background: linear-gradient(#12100e, #26221d);
+  border: 2px solid #4a453f; border-top: 4px solid #3a352f;
+}
+
+/* ---------- Sidebar ---------- */
+.panel {
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  border-radius: var(--radius);
+  padding: 1.15rem 1.25rem; margin-bottom: 1.25rem;
+}
+.panel h2 {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 1.35rem; font-weight: 700; margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+
+/* Care meter */
+.meter-track {
+  background: var(--parchment-deep); border-radius: 999px; height: 22px;
+  overflow: hidden; border: 1px solid var(--light-gray);
+}
+.meter-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--gold), var(--good));
+  border-radius: 999px; transition: width 0.4s ease;
+}
+.meter-label { margin-top: 0.5rem; font-weight: 600; color: var(--warm-gray); }
+
+/* Tasks */
+ul.tasks { list-style: none; display: grid; gap: 0.55rem; }
+ul.tasks li {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.6rem 0.7rem; border-radius: 8px;
+  background: var(--parchment); border: 1px solid var(--light-gray);
+  font-weight: 600;
+}
+ul.tasks li .box {
+  width: 26px; height: 26px; flex: none; border-radius: 6px;
+  border: 2px solid var(--warm-gray); display: grid; place-items: center;
+  font-weight: 800; color: var(--white); background: transparent;
+}
+ul.tasks li.done { color: var(--warm-gray); }
+ul.tasks li.done .box { background: var(--good); border-color: var(--good); }
+ul.tasks li.done .tasklabel { text-decoration: line-through; }
+ul.tasks li .count { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--warm-gray); }
+
+/* Supply */
+.supply-hint { color: var(--warm-gray); font-size: 0.95rem; margin-bottom: 0.8rem; }
+.selected-readout {
+  font-weight: 700; padding: 0.6rem 0.8rem; border-radius: 8px;
+  background: var(--parchment-deep); border: 1px dashed var(--warm-gray);
+  margin-bottom: 0.9rem; min-height: 48px; display: flex; align-items: center; gap: 0.5rem;
+}
+.supply-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 0.6rem; }
+.supply-item {
+  font: inherit; cursor: pointer; text-align: center;
+  background: var(--white); border: 2px solid var(--light-gray);
+  border-radius: 10px; padding: 0.6rem 0.35rem;
+  display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+  min-height: 92px; transition: transform 0.12s ease, box-shadow 0.2s ease;
+}
+.supply-item:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,0,0,0.12); }
+.supply-item .si-emoji { font-size: 1.9rem; line-height: 1; }
+.supply-item .si-name { font-size: 0.85rem; font-weight: 700; line-height: 1.1; }
+.supply-item .si-accent { width: 60%; height: 5px; border-radius: 4px; background: var(--accent); }
+.supply-item[aria-pressed="true"] {
+  border-color: var(--gold); box-shadow: 0 0 0 3px rgba(196,154,42,0.4);
+  background: #fffdf4;
+}
+.supply-divider {
+  grid-column: 1 / -1; margin: 0.4rem 0 0.1rem;
+  font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
+  font-weight: 700; color: var(--warm-gray);
+}
+
+/* Message feed */
+.message {
+  margin-top: 0.5rem; padding: 0.85rem 1rem; border-radius: 10px;
+  font-weight: 600; border: 1px solid var(--light-gray); background: var(--parchment);
+  min-height: 52px; display: flex; align-items: center; gap: 0.55rem;
+}
+.message.good { background: #eef7f0; border-color: #b8ddc4; color: #1f5a38; }
+.message.hint { background: #fff6e9; border-color: #e7d3aa; color: #7a4e08; }
+
+/* ---------- Dialogs ---------- */
+dialog {
+  border: none; border-radius: 16px; padding: 0;
+  max-width: 560px; width: calc(100% - 2rem);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35); color: var(--ink);
+}
+dialog::backdrop { background: rgba(20,16,14,0.55); }
+.dialog-inner { padding: 1.75rem clamp(1.25rem, 4vw, 2.25rem); }
+.dialog-inner h2 {
+  font-family: 'Crimson Pro', Georgia, serif; font-size: 1.8rem;
+  font-weight: 700; margin-bottom: 0.5rem; color: var(--crimson);
+}
+.dialog-inner ol { margin: 1rem 0 1.25rem 1.25rem; display: grid; gap: 0.7rem; }
+.dialog-inner li { padding-left: 0.25rem; }
+.dialog-inner .legend { display: grid; gap: 0.5rem; margin: 1rem 0; }
+.dialog-inner .legend div { display: flex; align-items: center; gap: 0.6rem; }
+.dialog-inner .chip {
+  font-size: 1.5rem; width: 44px; text-align: center; flex: none;
+}
+.dialog-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem; }
+
+/* Completion celebration */
+#doneDialog .dialog-inner { text-align: center; }
+#doneDialog h2 { color: var(--good); font-size: 2.1rem; }
+.confetti-emoji { font-size: 3rem; margin-bottom: 0.5rem; }
+.care-summary {
+  margin: 1rem auto; max-width: 380px; display: grid; gap: 0.5rem; text-align: left;
+}
+.care-summary div {
+  display: flex; justify-content: space-between; padding: 0.5rem 0.75rem;
+  background: var(--parchment); border-radius: 8px; border: 1px solid var(--light-gray);
+  font-weight: 600;
+}
+
+footer.gamefoot {
+  text-align: center; padding: 2rem 1rem; color: var(--warm-gray);
+  font-size: 0.92rem; border-top: 1px solid var(--light-gray); margin-top: 2rem;
+}
+footer.gamefoot a { color: var(--crimson); }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#supply-panel">Skip to your supply cart</a>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="addlogo.png" alt="" aria-hidden="true">
+    <div class="brand-text">
+      <div class="game-name">The Vending Machine Shift</div>
+      <div class="prog-name">Agency, Dignity &amp; Dice</div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn btn-outline" id="howBtn" type="button">📖 How to Play</button>
+    <button class="btn btn-outline" id="soundBtn" type="button" aria-pressed="false">🔇 Sound Off</button>
+    <button class="btn btn-primary" id="newShiftBtn" type="button">🔄 New Shift</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <div class="shift-banner">
+    <h1>Your shift: stock &amp; care for the machine</h1>
+    <span class="shift-count" id="shiftCount">Shifts finished: 0</span>
+    <div>
+      <label for="difficulty" style="font-weight:600; margin-right:0.4rem;">Machine size:</label>
+      <select id="difficulty" class="btn" style="padding:0.55rem 0.8rem;">
+        <option value="simple">Simple — 4 slots</option>
+        <option value="standard" selected>Standard — 6 slots</option>
+        <option value="full">Full — 8 slots</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="game-grid">
+
+    <!-- MACHINE -->
+    <section class="machine" aria-label="Vending machine">
+      <div class="machine-display">
+        <span><span class="dot" aria-hidden="true">●</span> BREAK ROOM SNACKS</span>
+        <span id="displayStatus">Ready</span>
+      </div>
+      <div class="glass" id="glass">
+        <div class="slots" id="slots" role="group" aria-label="Snack slots"></div>
+      </div>
+      <div class="tray" aria-hidden="true"></div>
+    </section>
+
+    <!-- SIDEBAR -->
+    <div>
+      <section class="panel" aria-labelledby="care-h">
+        <h2 id="care-h">🩺 Machine care</h2>
+        <div class="meter-track" role="img" aria-label="Care progress meter">
+          <div class="meter-fill" id="meterFill"></div>
+        </div>
+        <p class="meter-label" id="meterLabel">0% cared for</p>
+      </section>
+
+      <section class="panel" aria-labelledby="tasks-h">
+        <h2 id="tasks-h">✅ This shift you need to</h2>
+        <ul class="tasks" id="taskList"></ul>
+      </section>
+
+      <section class="panel" id="supply-panel" aria-labelledby="supply-h">
+        <h2 id="supply-h">🛒 Your supply cart</h2>
+        <p class="supply-hint">Tap a snack or a tool to pick it up. Then tap where it goes on the machine.</p>
+        <div class="selected-readout" id="selectedReadout" aria-live="polite">
+          <span aria-hidden="true">👉</span> Nothing picked up yet
+        </div>
+        <div class="supply-grid" id="supplyGrid"></div>
+      </section>
+
+      <div class="message hint" id="message" role="status" aria-live="polite">
+        <span aria-hidden="true">💬</span>
+        <span id="messageText">Welcome! Tap “How to Play” any time, or just start caring for the machine.</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="gamefoot">
+  A calm, money-free learning game · Part of
+  <a href="index.html">Agency, Dignity, and Dice</a> ·
+  <button class="btn btn-outline" id="howBtn2" type="button" style="color:var(--crimson);border-color:var(--crimson);">📖 How to Play</button>
+</footer>
+
+<!-- HOW TO PLAY -->
+<dialog id="howDialog" aria-labelledby="how-title">
+  <div class="dialog-inner">
+    <h2 id="how-title">How to Play</h2>
+    <p>You take care of a snack machine. There is no money and no timer. Take all the time you like.</p>
+    <ol>
+      <li><strong>Look</strong> at the task list to see what the machine needs.</li>
+      <li><strong>Tap</strong> a snack or a tool in your supply cart to pick it up.</li>
+      <li><strong>Tap</strong> the slot on the machine where it belongs. That’s it!</li>
+      <li>Fill every slot, fix any problems, and clean the glass to finish the shift.</li>
+    </ol>
+    <p><strong>What the icons mean:</strong></p>
+    <div class="legend">
+      <div><span class="chip" aria-hidden="true">🔧</span><span><strong>Wrench</strong> — fixes a <em>jam</em> (a snack is stuck).</span></div>
+      <div><span class="chip" aria-hidden="true">🧽</span><span><strong>Cloth</strong> — wipes a <em>smudge</em> off the glass.</span></div>
+      <div><span class="chip" aria-hidden="true">🗑️</span><span><strong>Bin</strong> — removes an <em>old</em> snack that is past its date.</span></div>
+    </div>
+    <p>If something doesn’t fit, the machine gives you a friendly hint. Nothing bad happens — just try again.</p>
+    <div class="dialog-actions">
+      <button class="btn btn-primary" id="howClose" type="button">Got it, let’s go</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- COMPLETION -->
+<dialog id="doneDialog" aria-labelledby="done-title">
+  <div class="dialog-inner">
+    <div class="confetti-emoji" aria-hidden="true">🎉</div>
+    <h2 id="done-title">Shift complete!</h2>
+    <p>The machine is fully stocked, fixed, and shining. Wonderful care.</p>
+    <div class="care-summary" id="careSummary"></div>
+    <div class="dialog-actions" style="justify-content:center;">
+      <button class="btn btn-primary" id="nextShiftBtn" type="button">Start the next shift →</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- Product catalog (no prices, ever) ---------------- */
+  var PRODUCTS = {
+    water:   { name: "Water",       emoji: "💧", accent: "var(--p-water)" },
+    juice:   { name: "Juice",       emoji: "🧃", accent: "var(--p-juice)" },
+    pretzel: { name: "Pretzels",    emoji: "🥨", accent: "var(--p-pretzel)" },
+    trail:   { name: "Trail Mix",   emoji: "🥜", accent: "var(--p-trail)" },
+    granola: { name: "Granola Bar", emoji: "🥠", accent: "var(--p-granola)" },
+    fruit:   { name: "Fruit Cup",   emoji: "🍎", accent: "var(--p-fruit)" },
+    cracker: { name: "Crackers",    emoji: "🧀", accent: "var(--p-cracker)" },
+    veggie:  { name: "Veggie Chips",emoji: "🥕", accent: "var(--p-veggie)" }
+  };
+
+  var TOOLS = {
+    wrench: { name: "Wrench", emoji: "🔧", fixes: "jam",     verb: "fix the jam in" },
+    cloth:  { name: "Cloth",  emoji: "🧽", fixes: "smudge",  verb: "wipe" },
+    bin:    { name: "Bin",    emoji: "🗑️", fixes: "expired", verb: "clear the old snack from" }
+  };
+
+  var LAYOUTS = {
+    simple:   { cols: 2, ids: ["water", "juice", "pretzel", "granola"] },
+    standard: { cols: 3, ids: ["water", "juice", "pretzel", "trail", "granola", "fruit"] },
+    full:     { cols: 4, ids: ["water", "juice", "pretzel", "trail", "granola", "fruit", "cracker", "veggie"] }
+  };
+
+  var MAX = 5; // items per slot
+
+  /* ---------------- State ---------------- */
+  var state = {
+    slots: [],
+    smudges: [],
+    selected: null,          // { kind: 'product'|'tool', id }
+    shiftsCompleted: 0,
+    cols: 3,
+    started: false,
+    soundOn: false,
+    startFilled: 0
+  };
+
+  /* ---------------- DOM refs ---------------- */
+  var $ = function (id) { return document.getElementById(id); };
+  var slotsEl = $("slots"), glassEl = $("glass"), supplyEl = $("supplyGrid"),
+      taskListEl = $("taskList"), meterFill = $("meterFill"), meterLabel = $("meterLabel"),
+      messageEl = $("message"), messageText = $("messageText"),
+      selectedReadout = $("selectedReadout"), displayStatus = $("displayStatus"),
+      shiftCountEl = $("shiftCount");
+
+  /* ---------------- Small helpers ---------------- */
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function chance(p) { return Math.random() < p; }
+  function pretty(kind, id) {
+    return kind === "product" ? PRODUCTS[id].name : TOOLS[id].name;
+  }
+
+  /* ---------------- Sound (optional, generated, no files) ---------------- */
+  var audioCtx = null;
+  function tone(freq, dur, type) {
+    if (!state.soundOn) return;
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = type || "sine"; o.frequency.value = freq;
+      g.gain.value = 0.08;
+      o.connect(g); g.connect(audioCtx.destination);
+      var now = audioCtx.currentTime;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.09, now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      o.start(now); o.stop(now + dur + 0.02);
+    } catch (e) { /* audio not available — silently ignore */ }
+  }
+  var sfx = {
+    pick:    function () { tone(520, 0.08, "sine"); },
+    place:   function () { tone(660, 0.12, "triangle"); setTimeout(function(){ tone(880,0.12,"triangle"); }, 90); },
+    fix:     function () { tone(440, 0.1, "square"); setTimeout(function(){ tone(620,0.14,"square"); }, 100); },
+    hint:    function () { tone(300, 0.16, "sine"); },
+    win:     function () { [523,659,784,1046].forEach(function(f,i){ setTimeout(function(){ tone(f,0.18,"triangle"); }, i*120); }); }
+  };
+
+  /* ---------------- Messaging ---------------- */
+  function say(text, type) {
+    messageText.textContent = text;
+    messageEl.className = "message " + (type || "hint");
+  }
+
+  /* ---------------- Shift generation ---------------- */
+  function newShift() {
+    var diff = $("difficulty").value;
+    var layout = LAYOUTS[diff] || LAYOUTS.standard;
+    state.cols = layout.cols;
+    slotsEl.style.setProperty("--cols", layout.cols);
+
+    // Build slots
+    state.slots = layout.ids.map(function (pid, i) {
+      var row = String.fromCharCode(65 + Math.floor(i / layout.cols)); // A, B, ...
+      var col = (i % layout.cols) + 1;
+      return {
+        code: row + col,
+        product: pid,
+        stock: randInt(0, MAX - 1),   // never starts full — always something to top up
+        status: null                   // null | 'jam' | 'expired'
+      };
+    });
+
+    // Guarantee at least two slots clearly need restocking
+    var lowEnough = state.slots.filter(function (s) { return s.stock <= MAX - 2; });
+    while (lowEnough.length < 2) {
+      var pick = state.slots[randInt(0, state.slots.length - 1)];
+      pick.stock = randInt(0, MAX - 2);
+      lowEnough = state.slots.filter(function (s) { return s.stock <= MAX - 2; });
+    }
+
+    // Maintenance events scale gently with machine size
+    var eventBudget = diff === "simple" ? 1 : diff === "full" ? 3 : 2;
+    var pool = state.slots.slice();
+    shuffle(pool);
+    var placed = 0;
+    for (var k = 0; k < pool.length && placed < eventBudget; k++) {
+      if (chance(0.6)) {
+        pool[k].status = chance(0.5) ? "jam" : "expired";
+        if (pool[k].status === "expired") pool[k].stock = Math.max(pool[k].stock, 1);
+        placed++;
+      }
+    }
+
+    // Smudges on the glass
+    state.smudges = [];
+    var smudgeCount = diff === "simple" ? randInt(1, 2) : diff === "full" ? randInt(2, 3) : randInt(1, 3);
+    for (var m = 0; m < smudgeCount; m++) {
+      state.smudges.push({
+        id: "sm" + m,
+        top: randInt(6, 80),   // percent
+        left: randInt(4, 82),
+        cleaned: false
+      });
+    }
+
+    state.selected = null;
+    state.started = true;
+    state.startFilled = countFilledItems();
+
+    render();
+    clearSelectionUI();
+    say("New shift ready. Check the task list, then pick up a snack or tool to begin.", "hint");
+    displayStatus.textContent = "Needs care";
+  }
+
+  function shuffle(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  function countFilledItems() {
+    return state.slots.reduce(function (n, s) { return n + s.stock; }, 0);
+  }
+
+  /* ---------------- Task computation ---------------- */
+  function tasks() {
+    var jams = state.slots.filter(function (s) { return s.status === "jam"; }).length;
+    var expired = state.slots.filter(function (s) { return s.status === "expired"; }).length;
+    var smudges = state.smudges.filter(function (s) { return !s.cleaned; }).length;
+    var restock = state.slots.filter(function (s) { return s.status === null && s.stock < MAX; }).length;
+    return { restock: restock, jams: jams, expired: expired, smudges: smudges };
+  }
+
+  function totalOutstanding(t) { return t.restock + t.jams + t.expired + t.smudges; }
+
+  /* ---------------- Rendering ---------------- */
+  function render() {
+    renderSlots();
+    renderSmudges();
+    renderSupply();
+    renderTasks();
+    updateMeter();
+    updateTargetables();
+  }
+
+  function renderSlots() {
+    slotsEl.innerHTML = "";
+    state.slots.forEach(function (s, index) {
+      var p = PRODUCTS[s.product];
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "slot" + (s.status ? " " + s.status : "") + (s.stock >= MAX && !s.status ? " full" : "");
+      btn.style.setProperty("--accent", p.accent);
+      btn.dataset.index = index;
+
+      var statusLabel = "";
+      if (s.status === "jam") statusLabel = ", has a jam that needs the wrench";
+      else if (s.status === "expired") statusLabel = ", has an old snack to remove with the bin";
+      else if (s.stock >= MAX) statusLabel = ", full";
+      else statusLabel = ", " + s.stock + " of " + MAX + " — needs restocking with " + p.name;
+
+      btn.setAttribute("aria-label", "Slot " + s.code + ", " + p.name + statusLabel);
+
+      var dots = "";
+      for (var d = 0; d < MAX; d++) dots += '<i class="' + (d < s.stock ? "on" : "") + '"></i>';
+
+      var badge = "";
+      if (s.status === "jam") badge = '<span class="status jam"><span aria-hidden="true">🔧</span> Jam</span>';
+      else if (s.status === "expired") badge = '<span class="status expired"><span aria-hidden="true">⏰</span> Old</span>';
+
+      btn.innerHTML =
+        '<span class="code">' + s.code + '</span>' +
+        badge +
+        '<span class="emoji" aria-hidden="true">' + p.emoji + '</span>' +
+        '<span class="pname">' + p.name + '</span>' +
+        '<span class="dots" aria-hidden="true">' + dots + '</span>' +
+        '<span class="stocklabel">' + (s.status === "jam" ? "Stuck" : s.stock + " / " + MAX) + '</span>' +
+        '<span class="accent" aria-hidden="true"></span>';
+
+      btn.addEventListener("click", function () { onSlotClick(index); });
+      slotsEl.appendChild(btn);
+    });
+  }
+
+  function renderSmudges() {
+    // remove old smudge nodes
+    Array.prototype.slice.call(glassEl.querySelectorAll(".smudge")).forEach(function (n) { n.remove(); });
+    state.smudges.forEach(function (sm) {
+      if (sm.cleaned) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "smudge";
+      b.style.top = sm.top + "%";
+      b.style.left = sm.left + "%";
+      b.setAttribute("aria-label", "Smudge on the glass — clean it with the cloth");
+      b.dataset.smudge = sm.id;
+      b.addEventListener("click", function (e) { e.stopPropagation(); onSmudgeClick(sm.id); });
+      glassEl.appendChild(b);
+    });
+  }
+
+  function renderSupply() {
+    supplyEl.innerHTML = "";
+    // Only offer products that exist in this machine
+    var present = {};
+    state.slots.forEach(function (s) { present[s.product] = true; });
+
+    Object.keys(present).forEach(function (pid) {
+      supplyEl.appendChild(makeSupplyButton("product", pid, PRODUCTS[pid]));
+    });
+
+    var div = document.createElement("div");
+    div.className = "supply-divider";
+    div.textContent = "Tools";
+    supplyEl.appendChild(div);
+
+    Object.keys(TOOLS).forEach(function (tid) {
+      supplyEl.appendChild(makeSupplyButton("tool", tid, TOOLS[tid]));
+    });
+  }
+
+  function makeSupplyButton(kind, id, def) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "supply-item";
+    b.dataset.kind = kind; b.dataset.id = id;
+    b.setAttribute("aria-pressed", "false");
+    b.setAttribute("aria-label",
+      kind === "product" ? "Pick up " + def.name : "Pick up the " + def.name + " tool");
+    b.style.setProperty("--accent", def.accent || "var(--warm-gray)");
+    b.innerHTML =
+      '<span class="si-emoji" aria-hidden="true">' + def.emoji + '</span>' +
+      '<span class="si-name">' + def.name + '</span>' +
+      (kind === "product" ? '<span class="si-accent" aria-hidden="true"></span>' : '');
+    b.addEventListener("click", function () { selectItem(kind, id); });
+    return b;
+  }
+
+  function renderTasks() {
+    var t = tasks();
+    var rows = [
+      { key: "restock", label: "Restock the low slots", n: t.restock, icon: "📦" },
+      { key: "jams",    label: "Fix any jams (wrench)", n: t.jams, icon: "🔧" },
+      { key: "expired", label: "Remove old snacks (bin)", n: t.expired, icon: "🗑️" },
+      { key: "smudges", label: "Clean the glass (cloth)", n: t.smudges, icon: "🧽" }
+    ];
+    taskListEl.innerHTML = "";
+    rows.forEach(function (r) {
+      var li = document.createElement("li");
+      var done = r.n === 0;
+      li.className = done ? "done" : "";
+      li.innerHTML =
+        '<span class="box" aria-hidden="true">' + (done ? "✓" : "") + '</span>' +
+        '<span aria-hidden="true">' + r.icon + '</span>' +
+        '<span class="tasklabel">' + r.label + '</span>' +
+        '<span class="count">' + (done ? "Done" : r.n + " left") + '</span>';
+      li.setAttribute("aria-label", r.label + " — " + (done ? "done" : r.n + " remaining"));
+      taskListEl.appendChild(li);
+    });
+  }
+
+  function updateMeter() {
+    // Care = share of resolved tasks vs total tasks this shift.
+    // Total tasks baseline captured at generation isn't stored; recompute a stable denominator:
+    var t = tasks();
+    var outstanding = totalOutstanding(t);
+    // denominator = outstanding + already-done. We derive done from a per-shift baseline.
+    if (state._baseline === undefined || state._baselineShift !== state.shiftsCompleted) {
+      // set baseline once per shift the first time we compute after generation
+    }
+    var pct = state._total ? Math.round(((state._total - outstanding) / state._total) * 100) : 0;
+    if (pct < 0) pct = 0; if (pct > 100) pct = 100;
+    meterFill.style.width = pct + "%";
+    meterLabel.textContent = pct + "% cared for";
+  }
+
+  /* ---------------- Selection ---------------- */
+  function selectItem(kind, id) {
+    if (state.selected && state.selected.kind === kind && state.selected.id === id) {
+      clearSelection();
+      return;
+    }
+    state.selected = { kind: kind, id: id };
+    sfx.pick();
+    // update pressed states
+    Array.prototype.slice.call(supplyEl.querySelectorAll(".supply-item")).forEach(function (b) {
+      var on = b.dataset.kind === kind && b.dataset.id === id;
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    var def = kind === "product" ? PRODUCTS[id] : TOOLS[id];
+    selectedReadout.innerHTML = '<span aria-hidden="true">' + def.emoji + '</span> Holding: <strong>' +
+      def.name + '</strong>' + (kind === "tool" ? " — tap the spot that needs it" : " — tap its slot");
+    updateTargetables();
+    say("You picked up the " + def.name + ". Now tap where it goes.", "hint");
+  }
+
+  function clearSelection() {
+    state.selected = null;
+    clearSelectionUI();
+  }
+
+  function clearSelectionUI() {
+    Array.prototype.slice.call(supplyEl.querySelectorAll(".supply-item")).forEach(function (b) {
+      b.setAttribute("aria-pressed", "false");
+    });
+    selectedReadout.innerHTML = '<span aria-hidden="true">👉</span> Nothing picked up yet';
+    updateTargetables();
+  }
+
+  function updateTargetables() {
+    var sel = state.selected;
+    // slots
+    Array.prototype.slice.call(slotsEl.querySelectorAll(".slot")).forEach(function (btn) {
+      var s = state.slots[+btn.dataset.index];
+      var ok = false;
+      if (sel) {
+        if (sel.kind === "product" && s.status === null && s.product === sel.id && s.stock < MAX) ok = true;
+        if (sel.kind === "tool" && TOOLS[sel.id].fixes === s.status) ok = true;
+      }
+      btn.classList.toggle("targetable", ok);
+    });
+    // smudges
+    Array.prototype.slice.call(glassEl.querySelectorAll(".smudge")).forEach(function (b) {
+      b.classList.toggle("targetable", !!sel && sel.kind === "tool" && sel.id === "cloth");
+    });
+  }
+
+  /* ---------------- Interactions ---------------- */
+  function onSlotClick(index) {
+    var s = state.slots[index];
+    var sel = state.selected;
+
+    if (!sel) {
+      say("Pick up a snack or tool first, then tap the slot.", "hint");
+      sfx.hint();
+      return;
+    }
+
+    // Slot has a problem to resolve first
+    if (s.status === "jam") {
+      if (sel.kind === "tool" && sel.id === "wrench") {
+        s.status = null;
+        afterFix("Nice — you cleared the jam in slot " + s.code + ". It may need a top-up now.");
+      } else {
+        say("Slot " + s.code + " has a jam. Pick up the 🔧 Wrench to fix it.", "hint");
+        sfx.hint();
+      }
+      return;
+    }
+    if (s.status === "expired") {
+      if (sel.kind === "tool" && sel.id === "bin") {
+        s.status = null; s.stock = 0;
+        afterFix("Good catch — you removed the old snack from slot " + s.code + ". Now restock it with " + PRODUCTS[s.product].name + ".");
+      } else {
+        say("Slot " + s.code + " has an old snack. Pick up the 🗑️ Bin to remove it.", "hint");
+        sfx.hint();
+      }
+      return;
+    }
+
+    // Normal slot
+    if (sel.kind === "tool") {
+      say("There is nothing to " + TOOLS[sel.id].verb + " in slot " + s.code + ". It looks fine here.", "hint");
+      sfx.hint();
+      return;
+    }
+
+    // Product placement
+    if (sel.id !== s.product) {
+      say("Slot " + s.code + " holds " + PRODUCTS[s.product].name + ". Pick up the " +
+          PRODUCTS[s.product].name + " to fill it.", "hint");
+      sfx.hint();
+      return;
+    }
+    if (s.stock >= MAX) {
+      say("Slot " + s.code + " is already full. Try one that still has empty space.", "hint");
+      sfx.hint();
+      return;
+    }
+
+    // Success: fill the slot fully
+    s.stock = MAX;
+    afterFix("Filled slot " + s.code + " with " + PRODUCTS[s.product].name + ". Well done!");
+  }
+
+  function onSmudgeClick(id) {
+    var sel = state.selected;
+    var sm = state.smudges.filter(function (x) { return x.id === id; })[0];
+    if (!sm || sm.cleaned) return;
+    if (sel && sel.kind === "tool" && sel.id === "cloth") {
+      sm.cleaned = true;
+      afterFix("The glass is sparkling where you wiped. Nice work!");
+    } else {
+      say("That is a smudge on the glass. Pick up the 🧽 Cloth to wipe it away.", "hint");
+      sfx.hint();
+    }
+  }
+
+  function afterFix(msg) {
+    sfx.place();
+    say(msg, "good");
+    render();
+    checkComplete();
+  }
+
+  /* ---------------- Completion ---------------- */
+  function checkComplete() {
+    var t = tasks();
+    if (totalOutstanding(t) === 0) {
+      displayStatus.textContent = "All good ✓";
+      state.shiftsCompleted++;
+      shiftCountEl.textContent = "Shifts finished: " + state.shiftsCompleted;
+      sfx.win();
+      showCompletion();
+    }
+  }
+
+  function showCompletion() {
+    var filledNow = countFilledItems();
+    var restocked = Math.max(0, filledNow - state.startFilled);
+    var summary = $("careSummary");
+    summary.innerHTML =
+      '<div><span>Slots filled</span><span>' + state.slots.length + ' / ' + state.slots.length + '</span></div>' +
+      '<div><span>Snacks restocked</span><span>' + restocked + '</span></div>' +
+      '<div><span>Machine care</span><span>100%</span></div>' +
+      '<div><span>Shifts finished</span><span>' + state.shiftsCompleted + '</span></div>';
+    var dlg = $("doneDialog");
+    if (typeof dlg.showModal === "function") dlg.showModal();
+  }
+
+  /* ---------------- Baseline for meter ---------------- */
+  // Wrap newShift to capture the total task count once per shift.
+  var _origNewShift = newShift;
+  newShift = function () {
+    _origNewShift();
+    var t = tasks();
+    state._total = totalOutstanding(t) || 1;
+    updateMeter();
+  };
+
+  /* ---------------- Dialog + control wiring ---------------- */
+  function openDialog(dlg) { if (dlg && typeof dlg.showModal === "function") dlg.showModal(); }
+
+  $("howBtn").addEventListener("click", function () { openDialog($("howDialog")); });
+  $("howBtn2").addEventListener("click", function () { openDialog($("howDialog")); });
+  $("howClose").addEventListener("click", function () { $("howDialog").close(); });
+  $("newShiftBtn").addEventListener("click", function () { newShift(); });
+  $("nextShiftBtn").addEventListener("click", function () { $("doneDialog").close(); newShift(); });
+  $("difficulty").addEventListener("change", function () { newShift(); });
+
+  $("soundBtn").addEventListener("click", function () {
+    state.soundOn = !state.soundOn;
+    this.setAttribute("aria-pressed", state.soundOn ? "true" : "false");
+    this.textContent = state.soundOn ? "🔊 Sound On" : "🔇 Sound Off";
+    if (state.soundOn) sfx.pick();
+  });
+
+  // Allow Escape / click-out feel on dialogs is native; keep focus sane.
+
+  /* ---------------- Boot ---------------- */
+  newShift();
+
+})();
+</script>
+</body>
+</html>
